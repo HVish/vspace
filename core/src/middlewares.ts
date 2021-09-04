@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Schema } from 'joi';
+import Joi, { Schema } from 'joi';
 
 interface RequestValidationSchemaMap {
   query?: Schema;
@@ -8,9 +8,11 @@ interface RequestValidationSchemaMap {
 }
 
 export const validate = (
-  schema: RequestValidationSchemaMap
+  schemaFn: (joi: Joi.Root) => RequestValidationSchemaMap
 ): RequestHandler => {
   return (req, res, next) => {
+    const schema = schemaFn(Joi);
+
     const result = {
       query: schema.query?.validate(req.query, { abortEarly: false }),
       body: schema.body?.validate(req.body, { abortEarly: false }),

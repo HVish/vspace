@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import Joi from 'joi';
 import { validate } from './middlewares';
 
 describe('validate middleware', () => {
@@ -15,16 +14,16 @@ describe('validate middleware', () => {
   });
 
   it('should return a function', () => {
-    const middleware = validate({});
+    const middleware = validate(() => ({}));
     expect(typeof middleware).toBe('function');
   });
 
   it('should send 412 status code', () => {
-    const middleware = validate({
-      query: Joi.object({
-        test: Joi.string().required(),
+    const middleware = validate((joi) => ({
+      query: joi.object({
+        test: joi.string().required(),
       }),
-    });
+    }));
 
     const mockRequest = { query: {} };
 
@@ -40,11 +39,11 @@ describe('validate middleware', () => {
   });
 
   it('should not call next()', () => {
-    const middleware = validate({
-      query: Joi.object({
-        test: Joi.string().required(),
+    const middleware = validate((joi) => ({
+      query: joi.object({
+        test: joi.string().required(),
       }),
-    });
+    }));
 
     const mockRequest = { query: {} };
     const next = jest.fn();
@@ -59,11 +58,11 @@ describe('validate middleware', () => {
   });
 
   it('response json should have property errors.query', () => {
-    const middleware = validate({
-      query: Joi.object({
-        test: Joi.string().required(),
+    const middleware = validate((joi) => ({
+      query: joi.object({
+        test: joi.string().required(),
       }),
-    });
+    }));
 
     const mockRequest = { query: {} };
 
@@ -82,11 +81,11 @@ describe('validate middleware', () => {
   });
 
   it('response json should have property errors.body', () => {
-    const middleware = validate({
-      body: Joi.object({
-        test: Joi.string().required(),
+    const middleware = validate((joi) => ({
+      body: joi.object({
+        test: joi.string().required(),
       }),
-    });
+    }));
 
     const mockRequest = { body: {} };
 
