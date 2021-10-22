@@ -4,5 +4,7 @@ declare namespace NodeJS {
     PORT: string;
     /** mongodb connection URI */
     MONGO_DB_URI: string;
+    /** AES encryption/decryption key */
+    AES_KEY: string;
   }
 }
