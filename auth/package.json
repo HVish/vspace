@@ -10,8 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "test": "NODE_ENV=test jest --setupFiles dotenv/config",
-    "test:watch": "NODE_ENV=test jest --watch --setupFiles dotenv/config",
+    "test": "NODE_ENV=test jest --maxWorkers=1 --setupFiles dotenv/config",
+    "test:watch": "yarn test --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
