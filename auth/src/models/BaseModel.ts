@@ -5,3 +5,5 @@ export interface IBaseModel {
   /** Unix time in milliseconds */
   createdOn: number;
 }
+
+export type WithOptionalId<T> = T & { _id?: ObjectId };

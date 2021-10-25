@@ -17,7 +17,7 @@ describe('User Model', () => {
     await MongoService.client.close();
   });
 
-  test('it should create a user and insert it to database', async () => {
+  test('it should create a user and insert it into database', async () => {
     const user = await User.create(testUser);
     const result = await User.get(user._id.toHexString());
 
