@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "author": "Vishnu Singh",
   "scripts": {
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
+    "test": "NODE_ENV=test jest --maxWorkers=1",
+    "test:watch": "yarn test --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
