@@ -1,19 +1,18 @@
-import { ObjectId } from 'bson';
-import { WithId } from 'mongodb';
 import MongoService from '../db';
-import { IBaseClient, Client, TokenType, ClientCredential } from './Client';
+import { IBaseClient, Client, GrantType, ClientCredential } from './Client';
 
 describe('Client Model', () => {
-  const testClient: WithId<IBaseClient> = {
-    _id: new ObjectId(),
+  const testClient: IBaseClient = {
+    clientId:
+      'client_id.DofWnfd411fDEyl+EhsRNyRRkv5Q/mPSVqlC/h85NFK2G3b3M1PyUm0oEu/ArnieU8hSyq+PoyRsp8YGTLg/Ag==',
+    secret: 'test_secret',
     name: 'company name',
     logo: 'https://localhost/images/company_logo.png',
-    secret: 'test_secret',
     redirectURIs: [
       'https://localhost/auth-success',
       'https://localhost/auth-failure',
     ],
-    tokenTypes: [TokenType.CODE],
+    grantTypes: [GrantType.AUTH_CODE],
   };
 
   beforeAll(async () => {
@@ -26,19 +25,20 @@ describe('Client Model', () => {
 
   test('it should create a client and insert it into database', async () => {
     const client = await Client.create(testClient);
-    const result = await Client.get(client._id.toHexString());
+    const result = await Client.get(client.clientId);
 
     const { secret: _, ...matchProps } = testClient;
+
     expect(result).toBeDefined();
     expect(result).toEqual(expect.objectContaining(matchProps));
   });
 
   test('it should validate correct credentials', async () => {
     const correctCredentials: ClientCredential = {
-      clientId: testClient._id.toHexString(),
-      secret: 'test_secret',
-      redirectURI: 'https://localhost/auth-success',
-      tokenType: TokenType.CODE,
+      clientId: testClient.clientId,
+      secret: testClient.secret,
+      redirectURI: testClient.redirectURIs[0],
+      grantType: testClient.grantTypes[0],
     };
 
     const shouldBeFalseArray = await Promise.all([
@@ -52,12 +52,14 @@ describe('Client Model', () => {
       }),
       Client.verifyCredentials({
         ...correctCredentials,
-        tokenType: TokenType.AUTH_TOKEN, // unregistered token type for this clientId
+        grantType: GrantType.AUTH_TOKEN, // unregistered token type for this client
       }),
     ]);
+
     shouldBeFalseArray.forEach((result) => expect(result).toBe(false));
 
     const shouldBeTrue = await Client.verifyCredentials(correctCredentials);
+
     expect(shouldBeTrue).toBe(true);
   });
 });

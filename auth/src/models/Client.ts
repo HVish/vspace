@@ -1,11 +1,13 @@
+import { randomBytes } from 'crypto';
 import { ObjectId } from 'mongodb';
 import MongoService from '../db';
 import { Hash } from '../utils/hash';
-import { IBaseModel, WithOptionalId } from './BaseModel';
+import { IBaseModel } from './BaseModel';
 
-export enum TokenType {
-  CODE = 'code',
+export enum GrantType {
+  AUTH_CODE = 'auth_code',
   AUTH_TOKEN = 'auth_token',
+  REFRESH_TOKEN = 'refresh_token',
 }
 
 export enum ClientStatus {
@@ -14,11 +16,12 @@ export enum ClientStatus {
 }
 
 export interface IBaseClient {
-  name: string;
+  clientId: string;
   secret: string;
+  name: string;
   logo: string;
   redirectURIs: string[];
-  tokenTypes: TokenType[];
+  grantTypes: GrantType[];
 }
 
 export interface IClient extends IBaseModel, IBaseClient {
@@ -29,21 +32,32 @@ export interface ClientCredential {
   clientId: string;
   secret: string;
   redirectURI: string;
-  tokenType: TokenType;
+  grantType: GrantType;
 }
 
-const COLLECTION_NAME = 'clients';
-
 export const Client = Object.freeze({
-  get collection() {
-    return MongoService.client.db().collection<IClient>(COLLECTION_NAME);
+  get COLLECTION_NAME() {
+    return 'clients';
   },
 
-  async create({ _id, secret, ...params }: WithOptionalId<IBaseClient>) {
+  get collection() {
+    return MongoService.client.db().collection<IClient>(this.COLLECTION_NAME);
+  },
+
+  generateId() {
+    return `client_id.${randomBytes(64).toString('base64')}`;
+  },
+
+  async create({
+    secret,
+    clientId,
+    ...params
+  }: Optional<IBaseClient, 'clientId'>) {
     const client: IClient = {
       ...params,
+      _id: new ObjectId(),
+      clientId: clientId || this.generateId(),
       secret: await Hash.create(secret),
-      _id: new ObjectId(_id),
       status: ClientStatus.ACTIVE,
       createdOn: Date.now(),
     };
@@ -53,7 +67,7 @@ export const Client = Object.freeze({
 
   async get(clientId: string): Promise<undefined | Omit<IClient, 'secret'>> {
     return this.collection.findOne(
-      { _id: new ObjectId(clientId) },
+      { clientId },
       { projection: { secret: false } }
     );
   },
@@ -62,16 +76,14 @@ export const Client = Object.freeze({
     clientId,
     secret,
     redirectURI,
-    tokenType,
+    grantType,
   }: ClientCredential) {
     const client = await this.collection.findOne({
-      _id: new ObjectId(clientId),
+      clientId,
       redirectURIs: redirectURI,
-      tokenTypes: tokenType,
+      grantTypes: grantType,
     });
-
     if (!client) return false;
-
     return Hash.compare(secret, client.secret);
   },
 });
