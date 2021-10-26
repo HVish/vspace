@@ -1,17 +1,27 @@
 import Joi from 'joi';
-import { launchValidator } from './validators';
+import { GrantType } from '../models/Client';
+import { LaunchValidator } from './auth.validators';
 
-describe('launchValidator', () => {
-  const schema = launchValidator(Joi);
+describe('LaunchValidator', () => {
+  const schema = LaunchValidator(Joi);
 
   test('it should return errors', () => {
-    const result = schema.query.validate({
+    const testQuery = {
       clientId: '',
       redirectURI: '',
       state: '',
-      response_type: '',
-    });
+      grantType: '',
+    };
+
+    const result = schema.query.validate(testQuery, { abortEarly: false });
+
     expect(result.error).toBeDefined();
+
+    const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
+
+    for (const key in testQuery) {
+      expect(invalidKeys).toContain(key);
+    }
   });
 
   test('it should not return errors', () => {
@@ -19,7 +29,7 @@ describe('launchValidator', () => {
       clientId: 'test-client-id',
       redirectURI: 'https://localhost/auth/success',
       state: 'abc',
-      response_type: 'code',
+      grantType: GrantType.AUTH_CODE,
     });
     expect(result.error).toBeUndefined();
   });
@@ -28,7 +38,7 @@ describe('launchValidator', () => {
     const commonValidPayload = {
       clientId: 'test-client-id',
       state: 'abc',
-      response_type: 'code',
+      grantType: GrantType.AUTH_CODE,
     };
 
     const invalidInputs = [
@@ -65,7 +75,7 @@ describe('launchValidator', () => {
     });
   });
 
-  test('it should accept only "code" in response_type', () => {
+  test('it should accept only valid grantType', () => {
     const commonValidPayload = {
       clientId: 'test-client-id',
       state: 'abc',
@@ -75,25 +85,25 @@ describe('launchValidator', () => {
     const invalidInputs = [
       {
         ...commonValidPayload,
-        response_type: '',
+        grantType: '',
       },
       {
         ...commonValidPayload,
-        response_type: 'abc',
+        grantType: 'abc',
       },
     ];
 
     const validInputs = [
       {
         ...commonValidPayload,
-        response_type: 'code',
+        grantType: GrantType.AUTH_CODE,
       },
     ];
 
     invalidInputs.forEach((input) => {
       const result = schema.query.validate(input);
       expect(result.error?.details[0]).toBeDefined();
-      expect(result.error?.details[0].path).toContain('response_type');
+      expect(result.error?.details[0].path).toContain('grantType');
     });
 
     validInputs.forEach((input) => {
