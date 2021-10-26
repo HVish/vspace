@@ -3,17 +3,41 @@ import { StatusCodes } from 'http-status-codes';
 interface ErrorConfig {
   name: string;
   defaultCode: StatusCodes;
+  defaultmessage: string;
 }
 
-export function ServerErrorFactory({ name, defaultCode }: ErrorConfig) {
-  return class AuthServerError extends Error {
+interface ErrorParams<T> {
+  code?: StatusCodes;
+  message?: string;
+  extras?: T;
+}
+
+export function ServerErrorFactory({
+  name,
+  defaultCode,
+  defaultmessage,
+}: ErrorConfig) {
+  return class AuthServerError<T = never> extends Error {
     public readonly isKnownError = true;
+
     public code: StatusCodes;
-    constructor(message: string, code?: StatusCodes) {
-      super(message);
+    public extras?: T;
+
+    constructor(params?: ErrorParams<T>) {
+      super(params?.message || defaultmessage);
+
       this.name = name;
+
+      const { code, message, extras } = {
+        code: defaultCode,
+        message: defaultmessage,
+        extras: undefined,
+        ...params,
+      };
+
       this.message = message;
-      this.code = code || defaultCode;
+      this.code = code;
+      this.extras = extras;
     }
   };
 }
