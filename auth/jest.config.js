@@ -9,4 +9,6 @@ module.exports = merge.recursive(tsJest, mongoDbJest, {
       isolatedModules: true,
     },
   },
+  setupFiles: ['dotenv/config'],
+  setupFilesAfterEnv: ['./src/setupTests.ts'],
 });

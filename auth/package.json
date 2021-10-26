@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "NODE_ENV=test jest --maxWorkers=1 --setupFiles dotenv/config",
+    "test": "NODE_ENV=test jest --maxWorkers=1",
     "test:watch": "yarn test --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
