@@ -1,6 +1,6 @@
 import Joi from 'joi';
-import { GrantType } from '../models/Client';
-import { LaunchValidator } from './auth.validators';
+import { GrantType } from './ClientModel';
+import { LaunchValidator } from './validators';
 
 describe('LaunchValidator', () => {
   const schema = LaunchValidator(Joi);

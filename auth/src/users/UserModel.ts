@@ -1,33 +1,33 @@
 import { ObjectId } from 'mongodb';
 import MongoService from '../db';
 import { Hash } from '../utils/hash';
-import { IBaseModel } from './BaseModel';
+import { BaseModel } from '../shared/BaseModel';
 
 export enum UserStatus {
   ACTIVE = 'active',
   BANNED = 'banned',
 }
 
-export interface IBaseUser {
+export interface BaseUser {
   name: string;
   username: string;
   password: string;
   avatar: string;
 }
 
-export interface IUser extends IBaseModel, IBaseUser {
+export interface User extends BaseModel, BaseUser {
   status: UserStatus;
 }
 
 const COLLECTION_NAME = 'users';
 
-export const User = Object.freeze({
+export const UserModel = Object.freeze({
   get collection() {
-    return MongoService.client.db().collection<IUser>(COLLECTION_NAME);
+    return MongoService.client.db().collection<User>(COLLECTION_NAME);
   },
 
-  async create({ password, ...params }: IBaseUser) {
-    const user: IUser = {
+  async create({ password, ...params }: BaseUser) {
+    const user: User = {
       ...params,
       password: await Hash.create(password),
       _id: new ObjectId(),
@@ -38,7 +38,7 @@ export const User = Object.freeze({
     return user;
   },
 
-  async get(userId: string): Promise<undefined | Omit<IUser, 'password'>> {
+  async get(userId: string): Promise<undefined | Omit<User, 'password'>> {
     return this.collection.findOne(
       { _id: new ObjectId(userId) },
       { projection: { password: false } }

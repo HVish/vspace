@@ -2,7 +2,7 @@ import { randomBytes } from 'crypto';
 import { ObjectId } from 'mongodb';
 import MongoService from '../db';
 import { Hash } from '../utils/hash';
-import { IBaseModel } from './BaseModel';
+import { BaseModel } from '../shared/BaseModel';
 
 export enum GrantType {
   AUTH_CODE = 'auth_code',
@@ -15,7 +15,7 @@ export enum ClientStatus {
   BANNED = 'banned',
 }
 
-export interface IBaseClient {
+export interface BaseClient {
   clientId: string;
   secret: string;
   name: string;
@@ -24,7 +24,7 @@ export interface IBaseClient {
   grantTypes: GrantType[];
 }
 
-export interface IClient extends IBaseModel, IBaseClient {
+export interface Client extends BaseModel, BaseClient {
   status: ClientStatus;
 }
 
@@ -35,13 +35,13 @@ export interface ClientCredential {
   grantType: GrantType;
 }
 
-export const Client = Object.freeze({
+export const ClientModel = Object.freeze({
   get COLLECTION_NAME() {
     return 'clients';
   },
 
   get collection() {
-    return MongoService.client.db().collection<IClient>(this.COLLECTION_NAME);
+    return MongoService.client.db().collection<Client>(this.COLLECTION_NAME);
   },
 
   generateId() {
@@ -52,8 +52,8 @@ export const Client = Object.freeze({
     secret,
     clientId,
     ...params
-  }: Optional<IBaseClient, 'clientId'>) {
-    const client: IClient = {
+  }: Optional<BaseClient, 'clientId'>) {
+    const client: Client = {
       ...params,
       _id: new ObjectId(),
       clientId: clientId || this.generateId(),
@@ -65,7 +65,7 @@ export const Client = Object.freeze({
     return client;
   },
 
-  async get(clientId: string): Promise<undefined | Omit<IClient, 'secret'>> {
+  async get(clientId: string): Promise<undefined | Omit<Client, 'secret'>> {
     return this.collection.findOne(
       { clientId },
       { projection: { secret: false } }

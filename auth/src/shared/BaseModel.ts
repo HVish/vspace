@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-export interface IBaseModel {
+export interface BaseModel {
   _id: ObjectId;
   /** Unix time in milliseconds */
   createdOn: number;

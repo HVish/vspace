@@ -1,8 +1,8 @@
 import MongoService from '../db';
-import { IBaseClient, Client, GrantType, ClientCredential } from './Client';
+import { BaseClient, ClientModel, GrantType, ClientCredential } from './ClientModel';
 
 describe('Client Model', () => {
-  const testClient: IBaseClient = {
+  const testClient: BaseClient = {
     clientId:
       'client_id.DofWnfd411fDEyl+EhsRNyRRkv5Q/mPSVqlC/h85NFK2G3b3M1PyUm0oEu/ArnieU8hSyq+PoyRsp8YGTLg/Ag==',
     secret: 'test_secret',
@@ -24,8 +24,8 @@ describe('Client Model', () => {
   });
 
   test('it should create a client and insert it into database', async () => {
-    const client = await Client.create(testClient);
-    const result = await Client.get(client.clientId);
+    const client = await ClientModel.create(testClient);
+    const result = await ClientModel.get(client.clientId);
 
     const { secret: _, ...matchProps } = testClient;
 
@@ -42,15 +42,15 @@ describe('Client Model', () => {
     };
 
     const shouldBeFalseArray = await Promise.all([
-      Client.verifyCredentials({
+      ClientModel.verifyCredentials({
         ...correctCredentials,
         secret: 'wrong_secret',
       }),
-      Client.verifyCredentials({
+      ClientModel.verifyCredentials({
         ...correctCredentials,
         redirectURI: 'https://localhost/un-registered-url',
       }),
-      Client.verifyCredentials({
+      ClientModel.verifyCredentials({
         ...correctCredentials,
         grantType: GrantType.AUTH_TOKEN, // unregistered token type for this client
       }),
@@ -58,7 +58,7 @@ describe('Client Model', () => {
 
     shouldBeFalseArray.forEach((result) => expect(result).toBe(false));
 
-    const shouldBeTrue = await Client.verifyCredentials(correctCredentials);
+    const shouldBeTrue = await ClientModel.verifyCredentials(correctCredentials);
 
     expect(shouldBeTrue).toBe(true);
   });
