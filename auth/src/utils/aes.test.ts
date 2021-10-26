@@ -10,8 +10,8 @@ describe('AES encryption and descryption', () => {
     expect(decipherText).toBe(plainText);
   });
 
-  test('encrypted text should have exactly one ":" character', () => {
-    const components = cipherText.split(':');
+  test('encrypted text should have exactly one "." character', () => {
+    const components = cipherText.split('.');
     expect(components.length).toBe(2);
   });
 });
