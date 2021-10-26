@@ -1,5 +1,4 @@
-import MongoService from '../db';
-import { BaseClient, ClientModel, GrantType, ClientCredential } from './ClientModel';
+import { BaseClient, ClientModel, GrantType } from './ClientModel';
 
 describe('Client Model', () => {
   const testClient: BaseClient = {
@@ -15,51 +14,24 @@ describe('Client Model', () => {
     grantTypes: [GrantType.AUTH_CODE],
   };
 
-  beforeAll(async () => {
-    MongoService.start();
-  });
+  test('it should generate a valid client id', () => {
+    const clientId = ClientModel.generateId();
+    expect(clientId).toContain('.');
 
-  afterAll(async () => {
-    await MongoService.client.close();
+    const [prefix, token] = clientId.split('.');
+    expect(prefix).toBe('client_id');
+    expect(token).toBeTruthy();
   });
 
   test('it should create a client and insert it into database', async () => {
     const client = await ClientModel.create(testClient);
-    const result = await ClientModel.get(client.clientId);
+    const result = await ClientModel.collection.findOne({
+      clientId: client.clientId,
+    });
 
     const { secret: _, ...matchProps } = testClient;
 
     expect(result).toBeDefined();
     expect(result).toEqual(expect.objectContaining(matchProps));
-  });
-
-  test('it should validate correct credentials', async () => {
-    const correctCredentials: ClientCredential = {
-      clientId: testClient.clientId,
-      secret: testClient.secret,
-      redirectURI: testClient.redirectURIs[0],
-      grantType: testClient.grantTypes[0],
-    };
-
-    const shouldBeFalseArray = await Promise.all([
-      ClientModel.verifyCredentials({
-        ...correctCredentials,
-        secret: 'wrong_secret',
-      }),
-      ClientModel.verifyCredentials({
-        ...correctCredentials,
-        redirectURI: 'https://localhost/un-registered-url',
-      }),
-      ClientModel.verifyCredentials({
-        ...correctCredentials,
-        grantType: GrantType.AUTH_TOKEN, // unregistered token type for this client
-      }),
-    ]);
-
-    shouldBeFalseArray.forEach((result) => expect(result).toBe(false));
-
-    const shouldBeTrue = await ClientModel.verifyCredentials(correctCredentials);
-
-    expect(shouldBeTrue).toBe(true);
   });
 });

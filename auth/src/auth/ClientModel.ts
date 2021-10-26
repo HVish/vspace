@@ -28,13 +28,6 @@ export interface Client extends BaseModel, BaseClient {
   status: ClientStatus;
 }
 
-export interface ClientCredential {
-  clientId: string;
-  secret: string;
-  redirectURI: string;
-  grantType: GrantType;
-}
-
 export const ClientModel = Object.freeze({
   get COLLECTION_NAME() {
     return 'clients';
@@ -63,27 +56,5 @@ export const ClientModel = Object.freeze({
     };
     await this.collection.insertOne(client);
     return client;
-  },
-
-  async get(clientId: string): Promise<undefined | Omit<Client, 'secret'>> {
-    return this.collection.findOne(
-      { clientId },
-      { projection: { secret: false } }
-    );
-  },
-
-  async verifyCredentials({
-    clientId,
-    secret,
-    redirectURI,
-    grantType,
-  }: ClientCredential) {
-    const client = await this.collection.findOne({
-      clientId,
-      redirectURIs: redirectURI,
-      grantTypes: grantType,
-    });
-    if (!client) return false;
-    return Hash.compare(secret, client.secret);
   },
 });
