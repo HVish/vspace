@@ -12,12 +12,24 @@ interface ErrorParams<T> {
   extras?: T;
 }
 
+type Extras = Record<string, string | number | undefined>;
+
+export interface ServerError {
+  readonly isKnownError: boolean;
+  code: StatusCodes;
+  message: string;
+  extras?: Extras;
+}
+
 export function ServerErrorFactory({
   name,
   defaultCode,
   defaultmessage,
 }: ErrorConfig) {
-  return class AuthServerError<T = never> extends Error {
+  return class AuthServerError<T extends Extras = never>
+    extends Error
+    implements ServerError
+  {
     public readonly isKnownError = true;
 
     public code: StatusCodes;
