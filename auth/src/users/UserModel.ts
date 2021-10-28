@@ -1,11 +1,20 @@
 import { ObjectId } from 'mongodb';
 import MongoService from '../db';
 import { Hash } from '../utils/hash';
-import { BaseModel } from '../shared/BaseModel';
+import { BaseModel, WithOptionalId } from '../shared/BaseModel';
+import { randomBytes } from 'crypto';
+import { DateTime, DateTimeUnit } from '../utils/datetime';
 
 export enum UserStatus {
   ACTIVE = 'active',
   BANNED = 'banned',
+}
+
+export interface Token {
+  clientId: string;
+  expiresAt: UnixTime;
+  issuedAt: UnixTime;
+  value: string;
 }
 
 export interface BaseUser {
@@ -16,6 +25,8 @@ export interface BaseUser {
 }
 
 export interface User extends BaseModel, BaseUser {
+  authCodes: Token[];
+  refeshTokens: Token[];
   status: UserStatus;
 }
 
@@ -26,28 +37,65 @@ export const UserModel = Object.freeze({
     return MongoService.client.db().collection<User>(COLLECTION_NAME);
   },
 
-  async create({ password, ...params }: BaseUser) {
+  async create({
+    _id = new ObjectId(),
+    password,
+    ...params
+  }: WithOptionalId<BaseUser>) {
     const user: User = {
       ...params,
-      password: await Hash.create(password),
-      _id: new ObjectId(),
-      status: UserStatus.ACTIVE,
+      _id,
+      authCodes: [],
       createdOn: Date.now(),
+      password: await Hash.create(password),
+      refeshTokens: [],
+      status: UserStatus.ACTIVE,
     };
     await this.collection.insertOne(user);
     return user;
   },
 
-  async get(userId: string): Promise<undefined | Omit<User, 'password'>> {
-    return this.collection.findOne(
+  async createAuthCode(userId: string, clientId: string) {
+    const now = Date.now();
+    const authCode: Token = {
+      clientId,
+      expiresAt: DateTime.add(now, 15, DateTimeUnit.MINUTE),
+      issuedAt: now,
+      value: randomBytes(21).toString('base64url'),
+    };
+    await this.collection.updateOne(
       { _id: new ObjectId(userId) },
-      { projection: { password: false } }
+      { $push: { authCodes: authCode } }
+    );
+    return authCode.value;
+  },
+
+  async deleteAuthCode(code: string, userId: string) {
+    await this.collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { authCodes: { value: code } } }
     );
   },
 
-  async verifyCredentials(username: string, password: string) {
-    const user = await this.collection.findOne({ username });
-    if (!user) return false;
-    return Hash.compare(password, user.password);
+  async createRefreshToken(userId: string, clientId: string) {
+    const now = Date.now();
+    const refreshToken: Token = {
+      clientId,
+      expiresAt: DateTime.add(now, 30, DateTimeUnit.DAY),
+      issuedAt: now,
+      value: randomBytes(128).toString('base64url'),
+    };
+    await this.collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $push: { refeshTokens: refreshToken } }
+    );
+    return refreshToken.value;
+  },
+
+  async deleteRefreshToken(token: string, userId: string) {
+    await this.collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { refeshTokens: { value: token } } }
+    );
   },
 });

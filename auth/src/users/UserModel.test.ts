@@ -1,8 +1,11 @@
+import { ObjectId, WithId } from 'mongodb';
 import MongoService from '../db';
+import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { BaseUser, UserModel } from './UserModel';
 
 describe('User Model', () => {
-  const testUser: BaseUser = {
+  const testUser: WithId<BaseUser> = {
+    _id: new ObjectId(),
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',
@@ -17,28 +20,100 @@ describe('User Model', () => {
     await MongoService.client.close();
   });
 
-  test('it should create a user and insert it into database', async () => {
+  test('should create a user', async () => {
     const user = await UserModel.create(testUser);
-    const result = await UserModel.get(user._id.toHexString());
+    const result = await UserModel.collection.findOne(user._id);
 
     const { password: _, ...matchProps } = testUser;
+
     expect(result).toBeDefined();
     expect(result).toEqual(expect.objectContaining(matchProps));
   });
 
-  test('it should validate correct credentials', async () => {
-    const shouldBeFalse = await UserModel.verifyCredentials(
-      'test_username',
-      'wrong_password'
+  test('should create auth_code', async () => {
+    const clientId = 'test_client_id';
+    const authCode = await UserModel.createAuthCode(
+      testUser._id.toHexString(),
+      clientId
     );
 
-    expect(shouldBeFalse).toBe(false);
+    expect(authCode).toBeTruthy();
 
-    const shouldBeTrue = await UserModel.verifyCredentials(
-      'test_username',
-      'test_password'
+    const user = await UserModel.collection.findOne({ _id: testUser._id });
+    const authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
+
+    expect(authCodeDoc?.value).toBe(authCode);
+    expect(authCodeDoc?.clientId).toBe(clientId);
+
+    expect(authCodeDoc?.expiresAt).toBeLessThanOrEqual(
+      DateTime.add(Date.now(), 15, DateTimeUnit.MINUTE)
+    );
+  });
+
+  test('should delete auth_code', async () => {
+    const clientId = 'test_client_id';
+
+    const authCode = await UserModel.createAuthCode(
+      testUser._id.toHexString(),
+      clientId
     );
 
-    expect(shouldBeTrue).toBe(true);
+    let user = await UserModel.collection.findOne({ _id: testUser._id });
+    let authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
+    expect(authCodeDoc?.value).toBe(authCode);
+
+    await UserModel.deleteAuthCode(authCode, testUser._id.toHexString());
+
+    user = await UserModel.collection.findOne({ _id: testUser._id });
+    authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
+    expect(authCodeDoc).toBeUndefined();
+  });
+
+  test('should create refresh_token', async () => {
+    const clientId = 'test_client_id';
+    const refreshToken = await UserModel.createRefreshToken(
+      testUser._id.toHexString(),
+      clientId
+    );
+
+    expect(refreshToken).toBeTruthy();
+
+    const user = await UserModel.collection.findOne({ _id: testUser._id });
+    const refreshTokenDoc = user?.refeshTokens.find(
+      (rt) => rt.value === refreshToken
+    );
+
+    expect(refreshTokenDoc?.value).toBe(refreshToken);
+    expect(refreshTokenDoc?.clientId).toBe(clientId);
+
+    expect(refreshTokenDoc?.expiresAt).toBeLessThanOrEqual(
+      DateTime.add(Date.now(), 30, DateTimeUnit.DAY)
+    );
+  });
+
+  test('should delete refresh_token', async () => {
+    const clientId = 'test_client_id';
+
+    const refreshToken = await UserModel.createRefreshToken(
+      testUser._id.toHexString(),
+      clientId
+    );
+
+    let user = await UserModel.collection.findOne({ _id: testUser._id });
+    let refreshTokenDoc = user?.refeshTokens.find(
+      (ac) => ac.value === refreshToken
+    );
+    expect(refreshTokenDoc?.value).toBe(refreshToken);
+
+    await UserModel.deleteRefreshToken(
+      refreshToken,
+      testUser._id.toHexString()
+    );
+
+    user = await UserModel.collection.findOne({ _id: testUser._id });
+    refreshTokenDoc = user?.refeshTokens.find(
+      (ac) => ac.value === refreshToken
+    );
+    expect(refreshTokenDoc).toBeUndefined();
   });
 });
