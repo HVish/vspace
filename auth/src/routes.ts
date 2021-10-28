@@ -1,9 +1,8 @@
 import { Router } from 'express';
+import userRoutes from './users/routes';
 
 const routes = Router();
 
-routes.get('/auth/login', async (req, res) => {
-  res.json({ message: 'ok' });
-});
+routes.use(userRoutes);
 
 export default routes;
