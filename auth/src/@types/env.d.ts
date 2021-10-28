@@ -7,5 +7,7 @@ declare namespace NodeJS {
     MONGO_DB_URI: string;
     /** AES encryption/decryption key */
     AES_KEY: string;
+    /** JWT signing secret */
+    JWT_SECRET: string;
   }
 }
