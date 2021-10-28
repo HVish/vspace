@@ -6,8 +6,7 @@ import { BaseModel } from '../shared/BaseModel';
 
 export enum GrantType {
   AUTH_CODE = 'auth_code',
-  AUTH_TOKEN = 'auth_token',
-  REFRESH_TOKEN = 'refresh_token',
+  ACCESS_TOKEN = 'access_token',
 }
 
 export enum ClientStatus {
@@ -50,9 +49,9 @@ export const ClientModel = Object.freeze({
       ...params,
       _id: new ObjectId(),
       clientId: clientId || this.generateId(),
+      createdOn: Date.now(),
       secret: await Hash.create(secret),
       status: ClientStatus.ACTIVE,
-      createdOn: Date.now(),
     };
     await this.collection.insertOne(client);
     return client;

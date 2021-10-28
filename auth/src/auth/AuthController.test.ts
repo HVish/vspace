@@ -47,7 +47,7 @@ describe('Auth controller', () => {
       }),
       AuthController.verifyLaunch({
         ...validLaunchData,
-        grantType: GrantType.AUTH_TOKEN, // unregistered token type for this client
+        grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
       }),
     ]);
     verifyArray.forEach((result) => {
@@ -82,7 +82,7 @@ describe('Auth controller', () => {
       }),
       AuthController.verifyCredentials({
         ...correctCredentials,
-        grantType: GrantType.AUTH_TOKEN, // unregistered token type for this client
+        grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
       }),
     ]);
     verifyArray.forEach((result) => {
