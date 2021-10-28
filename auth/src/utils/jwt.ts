@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { DateTime, DateTimeUnit } from './datetime';
 
-async function create<T extends Record<string, string | number>>(
+async function create<T extends Record<string, string | number | undefined>>(
   extras: T | undefined
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise<string | undefined>((resolve, reject) => {
     const now = Date.now();
     jwt.sign(
       {

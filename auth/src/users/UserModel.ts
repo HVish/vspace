@@ -4,6 +4,7 @@ import { Hash } from '../utils/hash';
 import { BaseModel, WithOptionalId } from '../shared/BaseModel';
 import { randomBytes } from 'crypto';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
+import { JWT } from '../utils/jwt';
 
 export enum UserStatus {
   ACTIVE = 'active',
@@ -75,6 +76,11 @@ export const UserModel = Object.freeze({
       { _id: new ObjectId(userId) },
       { $pull: { authCodes: { value: code } } }
     );
+  },
+
+  async createAccessToken(userId: string, clientId?: string) {
+    const payload = clientId ? { clientId, userId } : { userId };
+    return JWT.create(payload);
   },
 
   async createRefreshToken(userId: string, clientId: string) {

@@ -50,6 +50,23 @@ describe('User Model', () => {
     );
   });
 
+  test('should create access_token', async () => {
+    const clientId = 'test_client_id';
+
+    const accessToken1 = await UserModel.createAccessToken(
+      testUser._id.toHexString()
+    );
+    expect(accessToken1).toBeTruthy();
+
+    const accessToken2 = await UserModel.createAccessToken(
+      testUser._id.toHexString(),
+      clientId
+    );
+    expect(accessToken2).toBeTruthy();
+
+    expect(accessToken1).not.toBe(accessToken2);
+  });
+
   test('should delete auth_code', async () => {
     const clientId = 'test_client_id';
 
