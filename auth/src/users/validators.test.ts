@@ -1,6 +1,7 @@
 import Joi from 'joi';
+import { LoginRequest } from './UserController';
 import { BaseUser } from './UserModel';
-import { SignupValidator } from './validators';
+import { LoginValidator, SignupValidator } from './validators';
 
 describe('SignupValidator', () => {
   const schema = SignupValidator(Joi);
@@ -69,5 +70,34 @@ describe('SignupValidator', () => {
       const result = schema.body.validate(input);
       expect(result.error).toBeUndefined();
     });
+  });
+});
+
+describe('LoginValidator', () => {
+  const schema = LoginValidator(Joi);
+
+  test('it should return errors', () => {
+    const testQuery: LoginRequest = {
+      username: '',
+      password: '',
+    };
+
+    const result = schema.body.validate(testQuery, { abortEarly: false });
+
+    expect(result.error).toBeDefined();
+
+    const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
+
+    for (const key in testQuery) {
+      expect(invalidKeys).toContain(key);
+    }
+  });
+
+  test('it should not return errors', () => {
+    const result = schema.body.validate({
+      username: 'user_name',
+      password: 'test_password',
+    });
+    expect(result.error).toBeUndefined();
   });
 });

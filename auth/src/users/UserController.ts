@@ -3,7 +3,7 @@ import { Hash } from '../utils/hash';
 import { UsernameExistsError } from './errors';
 import { BaseUser, UserModel } from './UserModel';
 
-interface LoginRequest {
+export interface LoginRequest {
   username: string;
   password: string;
 }
