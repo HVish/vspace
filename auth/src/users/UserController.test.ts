@@ -1,3 +1,4 @@
+import { InvalidCredentials } from '../auth/errors';
 import { UsernameExistsError } from './errors';
 import { UserController } from './UserController';
 import { BaseUser, UserModel } from './UserModel';
@@ -26,6 +27,39 @@ describe('UserController', () => {
     const result = await UserController.signup({
       ...testUser,
       username: 'some_username',
+    });
+    expect(result).toMatchObject({
+      userId: expect.any(String),
+      accessToken: expect.any(String),
+    });
+  });
+
+  test('should throw InvalidCredentials error for invalid uesrname in login', async () => {
+    try {
+      await UserController.login({
+        username: 'invalid_username',
+        password: testUser.password,
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(InvalidCredentials);
+    }
+  });
+
+  test('should throw InvalidCredentials error for invalid password in login', async () => {
+    try {
+      await UserController.login({
+        username: testUser.username,
+        password: 'invalid_password',
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(InvalidCredentials);
+    }
+  });
+
+  test('should login with valid username and password', async () => {
+    const result = await UserController.login({
+      username: testUser.username,
+      password: testUser.password,
     });
     expect(result).toMatchObject({
       userId: expect.any(String),
