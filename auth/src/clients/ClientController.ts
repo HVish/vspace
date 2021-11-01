@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../shared/errors';
+import { InvalidCredentialsError } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { ClientModel, GrantType } from './ClientModel';
 
@@ -24,7 +24,7 @@ export const ClientController = Object.freeze({
     });
 
     if (!client) {
-      throw new InvalidCredentials();
+      throw new InvalidCredentialsError();
     }
 
     return true;
@@ -42,13 +42,13 @@ export const ClientController = Object.freeze({
     });
 
     if (!client) {
-      throw new InvalidCredentials();
+      throw new InvalidCredentialsError();
     }
 
     const isMatch = await Hash.compare(secret, client.secret);
 
     if (!isMatch) {
-      throw new InvalidCredentials();
+      throw new InvalidCredentialsError();
     }
 
     return true;

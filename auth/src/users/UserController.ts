@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../shared/errors';
+import { InvalidCredentialsError } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { UsernameExistsError } from './errors';
 import { BaseUser, UserModel } from './UserModel';
@@ -24,11 +24,11 @@ export const UserController = Object.freeze({
   async login({ username, password }: LoginRequest) {
     const user = await UserModel.collection.findOne({ username });
 
-    if (!user) throw new InvalidCredentials();
+    if (!user) throw new InvalidCredentialsError();
 
     const isMatch = await Hash.compare(password, user.password);
 
-    if (!isMatch) throw new InvalidCredentials();
+    if (!isMatch) throw new InvalidCredentialsError();
 
     const userId = user._id.toHexString();
     const accessToken = await UserModel.createAccessToken(userId);

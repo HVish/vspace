@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../shared/errors';
+import { InvalidCredentialsError } from '../shared/errors';
 import { UsernameExistsError } from './errors';
 import { UserController } from './UserController';
 import { BaseUser, UserModel } from './UserModel';
@@ -34,25 +34,25 @@ describe('UserController', () => {
     });
   });
 
-  test('should throw InvalidCredentials error for invalid uesrname in login', async () => {
+  test('should throw InvalidCredentialsError for invalid uesrname in login', async () => {
     try {
       await UserController.login({
         username: 'invalid_username',
         password: testUser.password,
       });
     } catch (error) {
-      expect(error).toBeInstanceOf(InvalidCredentials);
+      expect(error).toBeInstanceOf(InvalidCredentialsError);
     }
   });
 
-  test('should throw InvalidCredentials error for invalid password in login', async () => {
+  test('should throw InvalidCredentialsError for invalid password in login', async () => {
     try {
       await UserController.login({
         username: testUser.username,
         password: 'invalid_password',
       });
     } catch (error) {
-      expect(error).toBeInstanceOf(InvalidCredentials);
+      expect(error).toBeInstanceOf(InvalidCredentialsError);
     }
   });
 

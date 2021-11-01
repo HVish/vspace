@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../shared/errors';
+import { InvalidCredentialsError } from '../shared/errors';
 import {
   ClientController,
   ClientCredentials,
@@ -53,7 +53,7 @@ describe('ClientController', () => {
     verifyArray.forEach((result) => {
       expect(result.status).toBe('rejected');
       expect((result as PromiseRejectedResult).reason).toBeInstanceOf(
-        InvalidCredentials
+        InvalidCredentialsError
       );
     });
   });
@@ -88,7 +88,7 @@ describe('ClientController', () => {
     verifyArray.forEach((result) => {
       expect(result.status).toBe('rejected');
       expect((result as PromiseRejectedResult).reason).toBeInstanceOf(
-        InvalidCredentials
+        InvalidCredentialsError
       );
     });
   });
