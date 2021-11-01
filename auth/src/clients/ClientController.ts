@@ -1,6 +1,6 @@
+import { InvalidCredentials } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { ClientModel, GrantType } from './ClientModel';
-import { InvalidCredentials } from './errors';
 
 export interface LaunchData {
   clientId: string;
@@ -15,7 +15,7 @@ export interface ClientCredentials {
   secret: string;
 }
 
-export const AuthController = Object.freeze({
+export const ClientController = Object.freeze({
   async verifyLaunch({ clientId, grantType, redirectURI }: LaunchData) {
     const client = await ClientModel.collection.findOne({
       clientId,

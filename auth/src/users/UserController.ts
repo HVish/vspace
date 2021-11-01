@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../auth/errors';
+import { InvalidCredentials } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { UsernameExistsError } from './errors';
 import { BaseUser, UserModel } from './UserModel';

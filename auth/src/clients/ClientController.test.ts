@@ -1,12 +1,12 @@
+import { InvalidCredentials } from '../shared/errors';
 import {
-  AuthController,
+  ClientController,
   ClientCredentials,
   LaunchData,
-} from './AuthController';
+} from './ClientController';
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
-import { InvalidCredentials } from './errors';
 
-describe('Auth controller', () => {
+describe('ClientController', () => {
   const testClient: BaseClient = {
     clientId:
       'client_id.DofWnfd411fDEyl+EhsRNyRRkv5Q/mPSVqlC/h85NFK2G3b3M1PyUm0oEu/ArnieU8hSyq+PoyRsp8YGTLg/Ag==',
@@ -31,21 +31,21 @@ describe('Auth controller', () => {
   };
 
   test('verifyLaunch() should allow launch', async () => {
-    const result = await AuthController.verifyLaunch(validLaunchData);
+    const result = await ClientController.verifyLaunch(validLaunchData);
     expect(result).toBe(true);
   });
 
   test('verifyLaunch() should not allow launch', async () => {
     const verifyArray = await Promise.allSettled([
-      AuthController.verifyLaunch({
+      ClientController.verifyLaunch({
         ...validLaunchData,
         clientId: 'wrong_clientId',
       }),
-      AuthController.verifyLaunch({
+      ClientController.verifyLaunch({
         ...validLaunchData,
         redirectURI: 'https://localhost/un-registered-url',
       }),
-      AuthController.verifyLaunch({
+      ClientController.verifyLaunch({
         ...validLaunchData,
         grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
       }),
@@ -66,21 +66,21 @@ describe('Auth controller', () => {
   };
 
   test('verifyCredentials() should validate correct credentials', async () => {
-    const result = await AuthController.verifyCredentials(correctCredentials);
+    const result = await ClientController.verifyCredentials(correctCredentials);
     expect(result).toBe(true);
   });
 
   test('verifyCredentials() should reject for invalid credentials', async () => {
     const verifyArray = await Promise.allSettled([
-      AuthController.verifyCredentials({
+      ClientController.verifyCredentials({
         ...correctCredentials,
         secret: 'wrong_secret',
       }),
-      AuthController.verifyCredentials({
+      ClientController.verifyCredentials({
         ...correctCredentials,
         redirectURI: 'https://localhost/un-registered-url',
       }),
-      AuthController.verifyCredentials({
+      ClientController.verifyCredentials({
         ...correctCredentials,
         grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
       }),

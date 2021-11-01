@@ -1,6 +1,6 @@
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
 
-describe('Client Model', () => {
+describe('ClientModel', () => {
   const testClient: BaseClient = {
     clientId:
       'client_id.DofWnfd411fDEyl+EhsRNyRRkv5Q/mPSVqlC/h85NFK2G3b3M1PyUm0oEu/ArnieU8hSyq+PoyRsp8YGTLg/Ag==',

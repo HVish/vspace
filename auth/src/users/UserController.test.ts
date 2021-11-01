@@ -1,4 +1,4 @@
-import { InvalidCredentials } from '../auth/errors';
+import { InvalidCredentials } from '../shared/errors';
 import { UsernameExistsError } from './errors';
 import { UserController } from './UserController';
 import { BaseUser, UserModel } from './UserModel';
