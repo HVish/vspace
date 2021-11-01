@@ -10,7 +10,7 @@ describe('POST /users/v1', () => {
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',
-    username: 'test_username',
+    username: 'test_username1',
   };
 
   test('should send 201 status', async () => {
