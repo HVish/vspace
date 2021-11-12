@@ -4,7 +4,7 @@ import { DateTime, DateTimeUnit } from './datetime';
 async function create<T extends Record<string, string | number | undefined>>(
   extras: T | undefined
 ) {
-  return new Promise<string | undefined>((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     const now = Date.now();
     jwt.sign(
       {
@@ -15,7 +15,7 @@ async function create<T extends Record<string, string | number | undefined>>(
       process.env.JWT_SECRET,
       (err: Error | null, token: string | undefined) => {
         if (err) return reject(err);
-        resolve(token);
+        resolve(token as string);
       }
     );
   });
