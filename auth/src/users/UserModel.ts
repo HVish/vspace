@@ -80,7 +80,8 @@ export const UserModel = Object.freeze({
 
   async createAccessToken(userId: string, clientId?: string) {
     const payload = clientId ? { clientId, userId } : { userId };
-    return JWT.create(payload);
+    const { token: value, expiresAt } = await JWT.create(payload);
+    return { value, expiresAt };
   },
 
   async createRefreshToken(userId: string, clientId: string) {
@@ -95,7 +96,10 @@ export const UserModel = Object.freeze({
       { _id: new ObjectId(userId) },
       { $push: { refeshTokens: refreshToken } }
     );
-    return refreshToken.value;
+    return {
+      value: refreshToken.value,
+      expiresAt: refreshToken.expiresAt,
+    };
   },
 
   async deleteRefreshToken(token: string, userId: string) {

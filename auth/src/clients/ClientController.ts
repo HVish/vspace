@@ -26,9 +26,15 @@ interface AuthCodeResponse {
 }
 
 interface AccessTokenResponse {
-  accessToken: string;
+  accessToken: {
+    value: string;
+    expiresAt: UnixTime;
+  };
   grantType: GrantType;
-  refreshToken: string;
+  refreshToken: {
+    value: string;
+    expiresAt: UnixTime;
+  };
 }
 
 type AuthroizeResponse = AuthCodeResponse | AccessTokenResponse;

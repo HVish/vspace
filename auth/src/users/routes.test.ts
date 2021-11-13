@@ -19,7 +19,10 @@ describe('POST /users/v1', () => {
     expect(response.status).toBe(StatusCodes.CREATED);
     expect(response.body).toMatchObject({
       userId: expect.any(String),
-      accessToken: expect.any(String),
+      accessToken: expect.objectContaining({
+        expiresAt: expect.any(Number),
+        value: expect.any(String),
+      }),
     });
   });
 
@@ -50,7 +53,10 @@ describe('POST /users/v1/login', () => {
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.body).toMatchObject({
       userId: expect.any(String),
-      accessToken: expect.any(String),
+      accessToken: expect.objectContaining({
+        expiresAt: expect.any(Number),
+        value: expect.any(String),
+      }),
     });
   });
 

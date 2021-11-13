@@ -97,10 +97,10 @@ describe('User Model', () => {
 
     const user = await UserModel.collection.findOne({ _id: testUser._id });
     const refreshTokenDoc = user?.refeshTokens.find(
-      (rt) => rt.value === refreshToken
+      (rt) => rt.value === refreshToken.value
     );
 
-    expect(refreshTokenDoc?.value).toBe(refreshToken);
+    expect(refreshTokenDoc?.value).toBe(refreshToken.value);
     expect(refreshTokenDoc?.clientId).toBe(clientId);
 
     expect(refreshTokenDoc?.expiresAt).toBeLessThanOrEqual(
@@ -118,19 +118,21 @@ describe('User Model', () => {
 
     let user = await UserModel.collection.findOne({ _id: testUser._id });
     let refreshTokenDoc = user?.refeshTokens.find(
-      (ac) => ac.value === refreshToken
+      (ac) => ac.value === refreshToken.value
     );
-    expect(refreshTokenDoc?.value).toBe(refreshToken);
+
+    expect(refreshTokenDoc?.value).toBe(refreshToken.value);
 
     await UserModel.deleteRefreshToken(
-      refreshToken,
+      refreshToken.value,
       testUser._id.toHexString()
     );
 
     user = await UserModel.collection.findOne({ _id: testUser._id });
     refreshTokenDoc = user?.refeshTokens.find(
-      (ac) => ac.value === refreshToken
+      (ac) => ac.value === refreshToken.value
     );
+
     expect(refreshTokenDoc).toBeUndefined();
   });
 });

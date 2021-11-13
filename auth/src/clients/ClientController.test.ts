@@ -152,9 +152,15 @@ describe('ClientController', () => {
       });
       expect(result).toEqual(
         expect.objectContaining({
-          accessToken: expect.any(String),
+          accessToken: expect.objectContaining({
+            expiresAt: expect.any(Number),
+            value: expect.any(String),
+          }),
           grantType: GrantType.ACCESS_TOKEN,
-          refreshToken: expect.any(String),
+          refreshToken: expect.objectContaining({
+            expiresAt: expect.any(Number),
+            value: expect.any(String),
+          }),
         })
       );
     });

@@ -30,7 +30,10 @@ describe('UserController', () => {
     });
     expect(result).toMatchObject({
       userId: expect.any(String),
-      accessToken: expect.any(String),
+      accessToken: expect.objectContaining({
+        expiresAt: expect.any(Number),
+        value: expect.any(String),
+      }),
     });
   });
 
@@ -63,7 +66,10 @@ describe('UserController', () => {
     });
     expect(result).toMatchObject({
       userId: expect.any(String),
-      accessToken: expect.any(String),
+      accessToken: expect.objectContaining({
+        expiresAt: expect.any(Number),
+        value: expect.any(String),
+      }),
     });
   });
 });
