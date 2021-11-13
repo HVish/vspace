@@ -2,7 +2,7 @@ import Joi from 'joi';
 import { GrantType } from './ClientModel';
 
 export const LaunchValidator = (joi: Joi.Root) => ({
-  query: joi.object({
+  body: joi.object({
     clientId: joi.string().required(),
     redirectURI: joi.string().uri({ scheme: 'https' }).required(),
     state: joi.string().required(),

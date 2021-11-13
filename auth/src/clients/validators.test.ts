@@ -13,7 +13,7 @@ describe('LaunchValidator', () => {
       grantType: '',
     };
 
-    const result = schema.query.validate(testQuery, { abortEarly: false });
+    const result = schema.body.validate(testQuery, { abortEarly: false });
 
     expect(result.error).toBeDefined();
 
@@ -25,7 +25,7 @@ describe('LaunchValidator', () => {
   });
 
   test('it should not return errors', () => {
-    const result = schema.query.validate({
+    const result = schema.body.validate({
       clientId: 'test-client-id',
       redirectURI: 'https://localhost/auth/success',
       state: 'abc',
@@ -64,13 +64,13 @@ describe('LaunchValidator', () => {
     ];
 
     invalidInputs.forEach((input) => {
-      const result = schema.query.validate(input);
+      const result = schema.body.validate(input);
       expect(result.error?.details[0]).toBeDefined();
       expect(result.error?.details[0].path).toContain('redirectURI');
     });
 
     validInputs.forEach((input) => {
-      const result = schema.query.validate(input);
+      const result = schema.body.validate(input);
       expect(result.error).toBeUndefined();
     });
   });
@@ -101,13 +101,13 @@ describe('LaunchValidator', () => {
     ];
 
     invalidInputs.forEach((input) => {
-      const result = schema.query.validate(input);
+      const result = schema.body.validate(input);
       expect(result.error?.details[0]).toBeDefined();
       expect(result.error?.details[0].path).toContain('grantType');
     });
 
     validInputs.forEach((input) => {
-      const result = schema.query.validate(input);
+      const result = schema.body.validate(input);
       expect(result.error).toBeUndefined();
     });
   });
