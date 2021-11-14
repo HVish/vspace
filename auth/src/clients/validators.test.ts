@@ -1,9 +1,9 @@
 import Joi from 'joi';
 import { GrantType } from './ClientModel';
-import { LaunchValidator } from './validators';
+import { ClientValidator } from './validators';
 
-describe('LaunchValidator', () => {
-  const schema = LaunchValidator(Joi);
+describe('ClientValidator', () => {
+  const schema = ClientValidator(Joi);
 
   test('it should return errors', () => {
     const testQuery = {
