@@ -1,35 +1,68 @@
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import { DateTime, DateTimeUnit } from './datetime';
 
-type CreateJWTPayload = Record<string, string | number | undefined>;
+export interface JWTPayload {
+  clientId?: string;
+  expiresAt: UnixTime;
+  issuedAt: UnixTime;
+  userId: string;
+}
 
 interface CreateJWTResult {
   expiresAt: UnixTime;
   token: string;
 }
 
-async function create<T extends CreateJWTPayload>(extras: T | undefined) {
-  return new Promise<CreateJWTResult>((resolve, reject) => {
-    const now = Date.now();
-
-    const payload = {
-      expiresAt: DateTime.add(now, 2, DateTimeUnit.HOUR),
-      issuedAt: now,
-      ...extras,
-    };
-
-    const handleResult = (err: Error | null, token: string | undefined) => {
-      if (err) return reject(err);
-      resolve({
-        expiresAt: payload.expiresAt,
-        token: token as string,
-      });
-    };
-
-    jwt.sign(payload, process.env.JWT_SECRET, handleResult);
-  });
+export class InvalidJWTParamsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidJWTParams';
+  }
 }
 
 export const JWT = Object.freeze({
-  create,
+  async create(extras: Optional<JWTPayload, 'expiresAt' | 'issuedAt'>) {
+    return new Promise<CreateJWTResult>((resolve, reject) => {
+      const now = Date.now();
+
+      const payload: JWTPayload = {
+        expiresAt: DateTime.add(now, 2, DateTimeUnit.HOUR),
+        issuedAt: now,
+        ...extras,
+      };
+
+      if (!payload.userId) {
+        return reject(new InvalidJWTParamsError('userId is required!'));
+      }
+
+      jwt.sign(payload, process.env.JWT_SECRET, (err, token) => {
+        if (err) return reject(err);
+        resolve({
+          expiresAt: payload.expiresAt,
+          token: token as string,
+        });
+      });
+    });
+  },
+
+  async validate(token: string) {
+    return new Promise<JWTPayload>((resolve, reject) => {
+      jwt.verify(token, process.env.JWT_SECRET, (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const payload = result as JWTPayload;
+
+        if (payload.expiresAt < Date.now()) {
+          throw new TokenExpiredError(
+            'JWT token is expired.',
+            new Date(payload.expiresAt)
+          );
+        }
+
+        resolve(payload);
+      });
+    });
+  },
 });
