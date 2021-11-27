@@ -1,10 +1,10 @@
-import Joi from 'joi';
+import { joi } from '@vspace/core';
 import { LoginRequest } from './UserController';
 import { BaseUser } from './UserModel';
 import { LoginValidator, SignupValidator } from './validators';
 
 describe('SignupValidator', () => {
-  const schema = SignupValidator(Joi);
+  const schema = SignupValidator(joi);
 
   test('it should return errors', () => {
     const testQuery: BaseUser = {
@@ -74,7 +74,7 @@ describe('SignupValidator', () => {
 });
 
 describe('LoginValidator', () => {
-  const schema = LoginValidator(Joi);
+  const schema = LoginValidator(joi);
 
   test('it should return errors', () => {
     const testQuery: LoginRequest = {

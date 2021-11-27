@@ -1,7 +1,7 @@
-import Joi from 'joi';
+import { joi } from '@vspace/core';
 import { GrantType } from './ClientModel';
 
-export const ClientValidator = (joi: Joi.Root) => ({
+export const ClientValidator = (joi: joi.Root) => ({
   body: joi.object({
     clientId: joi.string().required(),
     redirectURI: joi.string().uri({ scheme: 'https' }).required(),

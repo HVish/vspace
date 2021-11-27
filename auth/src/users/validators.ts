@@ -1,6 +1,6 @@
-import Joi from 'joi';
+import { joi } from '@vspace/core';
 
-export const SignupValidator = (joi: Joi.Root) => ({
+export const SignupValidator = (joi: joi.Root) => ({
   body: joi.object({
     avatar: joi.string().uri({ scheme: 'https' }).required(),
     name: joi.string().required(),
@@ -9,7 +9,7 @@ export const SignupValidator = (joi: Joi.Root) => ({
   }),
 });
 
-export const LoginValidator = (joi: Joi.Root) => ({
+export const LoginValidator = (joi: joi.Root) => ({
   body: joi.object({
     username: joi.string().required(),
     password: joi.string().required(),

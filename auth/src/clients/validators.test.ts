@@ -1,9 +1,9 @@
-import Joi from 'joi';
+import { joi } from '@vspace/core';
 import { GrantType } from './ClientModel';
 import { ClientValidator } from './validators';
 
 describe('ClientValidator', () => {
-  const schema = ClientValidator(Joi);
+  const schema = ClientValidator(joi);
 
   test('it should return errors', () => {
     const testQuery = {
