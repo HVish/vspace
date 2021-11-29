@@ -2,11 +2,7 @@ import { InvalidCredentialsError } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { UsernameExistsError } from './errors';
 import { BaseUser, UserModel } from './UserModel';
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
+import { LoginBody } from './validators';
 
 export const UserController = Object.freeze({
   async signup(signupData: BaseUser) {
@@ -21,7 +17,7 @@ export const UserController = Object.freeze({
 
     return { userId: _id.toHexString(), accessToken };
   },
-  async login({ username, password }: LoginRequest) {
+  async login({ username, password }: LoginBody) {
     const user = await UserModel.collection.findOne({ username });
 
     if (!user) throw new InvalidCredentialsError();

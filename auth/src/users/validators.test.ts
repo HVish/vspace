@@ -1,7 +1,12 @@
 import { joi } from '@vspace/core';
-import { LoginRequest } from './UserController';
 import { BaseUser } from './UserModel';
-import { LoginValidator, SignupValidator } from './validators';
+import {
+  GetAuthCodeQuery,
+  GetAuthCodeValidator,
+  LoginBody,
+  LoginValidator,
+  SignupValidator,
+} from './validators';
 
 describe('SignupValidator', () => {
   const schema = SignupValidator(joi);
@@ -77,7 +82,7 @@ describe('LoginValidator', () => {
   const schema = LoginValidator(joi);
 
   test('it should return errors', () => {
-    const testQuery: LoginRequest = {
+    const testQuery: LoginBody = {
       username: '',
       password: '',
     };
@@ -97,6 +102,33 @@ describe('LoginValidator', () => {
     const result = schema.body.validate({
       username: 'user_name',
       password: 'test_password',
+    });
+    expect(result.error).toBeUndefined();
+  });
+});
+
+describe('GetAuthCodeValidator', () => {
+  const schema = GetAuthCodeValidator(joi);
+
+  test('it should return errors', () => {
+    const testQuery: GetAuthCodeQuery = {
+      clientId: '',
+    };
+
+    const result = schema.query.validate(testQuery, { abortEarly: false });
+
+    expect(result.error).toBeDefined();
+
+    const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
+
+    for (const key in testQuery) {
+      expect(invalidKeys).toContain(key);
+    }
+  });
+
+  test('it should not return errors', () => {
+    const result = schema.query.validate({
+      clientId: 'some_client_id',
     });
     expect(result.error).toBeUndefined();
   });

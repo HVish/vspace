@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { middlewares } from '@vspace/core';
 
 import { BaseUser } from './UserModel';
-import { LoginValidator, SignupValidator } from './validators';
+import { LoginBody, LoginValidator, SignupValidator } from './validators';
 import { UserController } from './UserController';
 
 const userRoutes = Router();
@@ -27,7 +27,7 @@ userRoutes.post(
   middlewares.validate(LoginValidator),
   async (req, res, next) => {
     try {
-      const result = await UserController.login(req.body as BaseUser);
+      const result = await UserController.login(req.body as LoginBody);
       res.status(StatusCodes.OK).json(result);
     } catch (error) {
       next(error);
