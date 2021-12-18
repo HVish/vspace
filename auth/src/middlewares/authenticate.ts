@@ -12,7 +12,11 @@ export enum AuthStrategy {
   BEARER = 'Bearer',
 }
 
-async function authenticate(req: Request, _res: Response, next: NextFunction) {
+async function authenticate<P, ResBody, ReqBody, ReqQuery, Locals>(
+  req: Request<P, ResBody, ReqBody, ReqQuery, Locals>,
+  _res: Response<ResBody, Locals>,
+  next: NextFunction
+) {
   const [strategy, token] = (req.headers.authorization || '').split(' ');
 
   if (!token) {

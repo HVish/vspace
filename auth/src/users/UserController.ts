@@ -4,8 +4,16 @@ import { UsernameExistsError } from './errors';
 import { BaseUser, UserModel } from './UserModel';
 import { LoginBody } from './validators';
 
+export interface AuthResponse {
+  userId: string;
+  accessToken: {
+    value: string;
+    expiresAt: number;
+  };
+}
+
 export const UserController = Object.freeze({
-  async signup(signupData: BaseUser) {
+  async signup(signupData: BaseUser): Promise<AuthResponse> {
     const existingUser = await UserModel.collection.findOne({
       username: signupData.username,
     });
@@ -17,7 +25,7 @@ export const UserController = Object.freeze({
 
     return { userId: _id.toHexString(), accessToken };
   },
-  async login({ username, password }: LoginBody) {
+  async login({ username, password }: LoginBody): Promise<AuthResponse> {
     const user = await UserModel.collection.findOne({ username });
 
     if (!user) throw new InvalidCredentialsError();
@@ -30,5 +38,8 @@ export const UserController = Object.freeze({
     const accessToken = await UserModel.createAccessToken(userId);
 
     return { userId, accessToken };
+  },
+  async getAuthCode(userId: string, clientId: string) {
+    return UserModel.createAuthCode(userId, clientId);
   },
 });

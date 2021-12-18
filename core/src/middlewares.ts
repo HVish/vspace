@@ -7,9 +7,16 @@ interface RequestValidationSchemaMap {
   body?: Schema;
 }
 
-export const validate = (
+export interface ErrorBody {
+  errors: {
+    query?: string;
+    body?: string;
+  };
+}
+
+export const validate = <P, ResBody, ReqBody, ReqQuery, Locals>(
   schemaFn: (joi: Joi.Root) => RequestValidationSchemaMap
-): RequestHandler => {
+): RequestHandler<P, ResBody | ErrorBody, ReqBody, ReqQuery, Locals> => {
   return (req, res, next) => {
     const schema = schemaFn(Joi);
 
