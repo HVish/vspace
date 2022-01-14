@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import MongoService from '../db';
 import { Hash } from '../utils/hash';
-import { BaseModel, WithOptionalId } from '../shared/BaseModel';
+import { BaseModel } from '../shared/BaseModel';
 import { randomBytes } from 'crypto';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { JWT } from '../utils/jwt';
@@ -19,6 +19,7 @@ export interface Token {
 }
 
 export interface BaseUser {
+  userId: string;
   name: string;
   username: string;
   password: string;
@@ -38,14 +39,15 @@ export const UserModel = Object.freeze({
     return MongoService.client.db().collection<User>(COLLECTION_NAME);
   },
 
-  async create({
-    _id = new ObjectId(),
-    password,
-    ...params
-  }: WithOptionalId<BaseUser>) {
+  generateId() {
+    return `user_id.${randomBytes(64).toString('base64url')}`;
+  },
+
+  async create({ userId, password, ...params }: Optional<BaseUser, 'userId'>) {
     const user: User = {
       ...params,
-      _id,
+      _id: new ObjectId(),
+      userId: userId || this.generateId(),
       authCodes: [],
       createdOn: Date.now(),
       password: await Hash.create(password),
@@ -65,7 +67,7 @@ export const UserModel = Object.freeze({
       value: randomBytes(21).toString('base64url'),
     };
     await this.collection.updateOne(
-      { _id: new ObjectId(userId) },
+      { userId },
       { $push: { authCodes: authCode } }
     );
     return authCode.value;
@@ -73,7 +75,7 @@ export const UserModel = Object.freeze({
 
   async deleteAuthCode(code: string, userId: string) {
     await this.collection.updateOne(
-      { _id: new ObjectId(userId) },
+      { userId },
       { $pull: { authCodes: { value: code } } }
     );
   },
@@ -93,7 +95,7 @@ export const UserModel = Object.freeze({
       value: randomBytes(128).toString('base64url'),
     };
     await this.collection.updateOne(
-      { _id: new ObjectId(userId) },
+      { userId },
       { $push: { refeshTokens: refreshToken } }
     );
     return {
@@ -104,7 +106,7 @@ export const UserModel = Object.freeze({
 
   async deleteRefreshToken(token: string, userId: string) {
     await this.collection.updateOne(
-      { _id: new ObjectId(userId) },
+      { userId },
       { $pull: { refeshTokens: { value: token } } }
     );
   },

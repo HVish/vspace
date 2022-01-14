@@ -1,12 +1,19 @@
 import { StatusCodes } from 'http-status-codes';
 import supertest from 'supertest';
 import server from '../server';
-import { User, UserModel } from '../users/UserModel';
+import { BaseUser, UserModel } from '../users/UserModel';
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
 
 const request = supertest(server);
 
-let user: User;
+const user: BaseUser = {
+  userId: 'user_id.auVNL6KgKozplSRQdnf6nqyX_gcxAPuPVRKIHf6EHb0',
+  password: 'test_password',
+  avatar: '',
+  name: 'some name',
+  username: 'username',
+};
+
 const testClient: BaseClient = {
   clientId:
     'client_id.ZDHk-5LTLWO0TOVP1WhzKqNliEGk6eIgEUrENoA2SZRMOrWE4o-Br_pcV-nK_zVT4bgFw2UCXGutu_rv_pWqCg',
@@ -20,16 +27,7 @@ const testClient: BaseClient = {
 };
 
 beforeAll(async () => {
-  const [_user] = await Promise.all([
-    await UserModel.create({
-      password: 'test_password',
-      avatar: '',
-      name: 'some name',
-      username: 'username',
-    }),
-    await ClientModel.create(testClient),
-  ]);
-  user = _user;
+  await Promise.all([UserModel.create(user), ClientModel.create(testClient)]);
 });
 
 describe('POST /clients/v1/verify', () => {
@@ -57,7 +55,7 @@ describe('POST /clients/v1/authorize', () => {
   let authCode: string;
 
   beforeAll(async () => {
-    const userId = user._id.toHexString();
+    const { userId } = user;
     jwt = (await UserModel.createAccessToken(userId)).value;
     authCode = await UserModel.createAuthCode(userId, testClient.clientId);
   });

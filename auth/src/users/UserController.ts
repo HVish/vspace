@@ -20,10 +20,10 @@ export const UserController = Object.freeze({
 
     if (existingUser) throw new UsernameExistsError();
 
-    const { _id } = await UserModel.create(signupData);
-    const accessToken = await UserModel.createAccessToken(_id.toHexString());
+    const { userId } = await UserModel.create(signupData);
+    const accessToken = await UserModel.createAccessToken(userId);
 
-    return { userId: _id.toHexString(), accessToken };
+    return { userId, accessToken };
   },
   async login({ username, password }: LoginBody): Promise<AuthResponse> {
     const user = await UserModel.collection.findOne({ username });
@@ -34,7 +34,7 @@ export const UserController = Object.freeze({
 
     if (!isMatch) throw new InvalidCredentialsError();
 
-    const userId = user._id.toHexString();
+    const { userId } = user;
     const accessToken = await UserModel.createAccessToken(userId);
 
     return { userId, accessToken };

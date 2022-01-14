@@ -1,11 +1,10 @@
-import { ObjectId, WithId } from 'mongodb';
 import MongoService from '../db';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { BaseUser, UserModel } from './UserModel';
 
 describe('User Model', () => {
-  const testUser: WithId<BaseUser> = {
-    _id: new ObjectId(),
+  const testUser: BaseUser = {
+    userId: 'user_id.hCHmz35MSKbWepwR_qNlTY7NjkaMbxLeJ6jBZIUnd44',
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',
@@ -21,8 +20,8 @@ describe('User Model', () => {
   });
 
   test('should create a user', async () => {
-    const user = await UserModel.create(testUser);
-    const result = await UserModel.collection.findOne(user._id);
+    await UserModel.create(testUser);
+    const result = await UserModel.collection.findOne({ userId: testUser.userId });
 
     const { password: _, ...matchProps } = testUser;
 
@@ -32,14 +31,13 @@ describe('User Model', () => {
 
   test('should create auth_code', async () => {
     const clientId = 'test_client_id';
-    const authCode = await UserModel.createAuthCode(
-      testUser._id.toHexString(),
-      clientId
-    );
+    const authCode = await UserModel.createAuthCode(testUser.userId, clientId);
 
     expect(authCode).toBeTruthy();
 
-    const user = await UserModel.collection.findOne({ _id: testUser._id });
+    const user = await UserModel.collection.findOne({
+      userId: testUser.userId,
+    });
     const authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
 
     expect(authCodeDoc?.value).toBe(authCode);
@@ -53,13 +51,11 @@ describe('User Model', () => {
   test('should create access_token', async () => {
     const clientId = 'test_client_id';
 
-    const accessToken1 = await UserModel.createAccessToken(
-      testUser._id.toHexString()
-    );
+    const accessToken1 = await UserModel.createAccessToken(testUser.userId);
     expect(accessToken1).toBeTruthy();
 
     const accessToken2 = await UserModel.createAccessToken(
-      testUser._id.toHexString(),
+      testUser.userId,
       clientId
     );
     expect(accessToken2).toBeTruthy();
@@ -70,18 +66,15 @@ describe('User Model', () => {
   test('should delete auth_code', async () => {
     const clientId = 'test_client_id';
 
-    const authCode = await UserModel.createAuthCode(
-      testUser._id.toHexString(),
-      clientId
-    );
+    const authCode = await UserModel.createAuthCode(testUser.userId, clientId);
 
-    let user = await UserModel.collection.findOne({ _id: testUser._id });
+    let user = await UserModel.collection.findOne({ userId: testUser.userId });
     let authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
     expect(authCodeDoc?.value).toBe(authCode);
 
-    await UserModel.deleteAuthCode(authCode, testUser._id.toHexString());
+    await UserModel.deleteAuthCode(authCode, testUser.userId);
 
-    user = await UserModel.collection.findOne({ _id: testUser._id });
+    user = await UserModel.collection.findOne({ userId: testUser.userId });
     authCodeDoc = user?.authCodes.find((ac) => ac.value === authCode);
     expect(authCodeDoc).toBeUndefined();
   });
@@ -89,13 +82,15 @@ describe('User Model', () => {
   test('should create refresh_token', async () => {
     const clientId = 'test_client_id';
     const refreshToken = await UserModel.createRefreshToken(
-      testUser._id.toHexString(),
+      testUser.userId,
       clientId
     );
 
     expect(refreshToken).toBeTruthy();
 
-    const user = await UserModel.collection.findOne({ _id: testUser._id });
+    const user = await UserModel.collection.findOne({
+      userId: testUser.userId,
+    });
     const refreshTokenDoc = user?.refeshTokens.find(
       (rt) => rt.value === refreshToken.value
     );
@@ -112,23 +107,20 @@ describe('User Model', () => {
     const clientId = 'test_client_id';
 
     const refreshToken = await UserModel.createRefreshToken(
-      testUser._id.toHexString(),
+      testUser.userId,
       clientId
     );
 
-    let user = await UserModel.collection.findOne({ _id: testUser._id });
+    let user = await UserModel.collection.findOne({ userId: testUser.userId });
     let refreshTokenDoc = user?.refeshTokens.find(
       (ac) => ac.value === refreshToken.value
     );
 
     expect(refreshTokenDoc?.value).toBe(refreshToken.value);
 
-    await UserModel.deleteRefreshToken(
-      refreshToken.value,
-      testUser._id.toHexString()
-    );
+    await UserModel.deleteRefreshToken(refreshToken.value, testUser.userId);
 
-    user = await UserModel.collection.findOne({ _id: testUser._id });
+    user = await UserModel.collection.findOne({ userId: testUser.userId });
     refreshTokenDoc = user?.refeshTokens.find(
       (ac) => ac.value === refreshToken.value
     );

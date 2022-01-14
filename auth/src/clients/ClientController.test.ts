@@ -1,5 +1,5 @@
 import { InvalidCredentialsError } from '../shared/errors';
-import { User, UserModel } from '../users/UserModel';
+import { BaseUser, UserModel } from '../users/UserModel';
 import { ClientController } from './ClientController';
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
 import { ClientCredentials, LaunchRequest } from './validators';
@@ -81,8 +81,15 @@ describe('ClientController', () => {
   });
 
   describe('authorize()', () => {
-    let user: User;
     let grant: string;
+
+    const user: BaseUser = {
+      userId: 'user_id.S9AHZjEhH5CPmxFxj-GVwmNd7NbPhdryXVvobCmWhFA',
+      password: 'test_password',
+      avatar: '',
+      name: 'some name',
+      username: 'username',
+    };
 
     const client: BaseClient = {
       clientId:
@@ -103,20 +110,8 @@ describe('ClientController', () => {
     };
 
     beforeAll(async () => {
-      const [_user] = await Promise.all([
-        UserModel.create({
-          password: 'test_password',
-          avatar: '',
-          name: 'some name',
-          username: 'username',
-        }),
-        ClientModel.create(client),
-      ]);
-      user = _user;
-      grant = await UserModel.createAuthCode(
-        user._id.toHexString(),
-        client.clientId
-      );
+      await Promise.all([UserModel.create(user), ClientModel.create(client)]);
+      grant = await UserModel.createAuthCode(user.userId, client.clientId);
     });
 
     test('should create access_token and refresh_token', async () => {

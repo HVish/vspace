@@ -77,7 +77,7 @@ export const ClientController = Object.freeze({
       throw new InvalidCredentialsError();
     }
 
-    const userId = user._id.toHexString();
+    const { userId } = user;
 
     const [accessToken, refreshToken] = await Promise.all([
       UserModel.createAccessToken(userId, credentials.clientId),

@@ -36,7 +36,7 @@ export const ClientModel = Object.freeze({
   },
 
   generateId() {
-    return `client_id.${randomBytes(64).toString('base64')}`;
+    return `client_id.${randomBytes(64).toString('base64url')}`;
   },
 
   async create({
