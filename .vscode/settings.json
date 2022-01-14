@@ -1,3 +1,4 @@
 {
-  "eslint.workingDirectories": ["auth", "core"]
+  "eslint.workingDirectories": ["auth", "core"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
