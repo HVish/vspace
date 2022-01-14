@@ -1,11 +1,8 @@
 import { InvalidCredentialsError } from '../shared/errors';
 import { User, UserModel } from '../users/UserModel';
-import {
-  ClientController,
-  ClientCredentials,
-  LaunchData,
-} from './ClientController';
+import { ClientController } from './ClientController';
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
+import { ClientCredentials, LaunchRequest } from './validators';
 
 describe('ClientController', () => {
   const testClient: BaseClient = {
@@ -18,16 +15,14 @@ describe('ClientController', () => {
       'https://localhost/auth-success',
       'https://localhost/auth-failure',
     ],
-    grantTypes: [GrantType.AUTH_CODE],
   };
 
   beforeAll(async () => {
     await ClientModel.create(testClient);
   });
 
-  const validLaunchData: LaunchData = {
+  const validLaunchData: LaunchRequest = {
     clientId: testClient.clientId,
-    grantType: testClient.grantTypes[0],
     redirectURI: testClient.redirectURIs[0],
   };
 
@@ -46,10 +41,6 @@ describe('ClientController', () => {
         ...validLaunchData,
         redirectURI: 'https://localhost/un-registered-url',
       }),
-      ClientController.verifyLaunch({
-        ...validLaunchData,
-        grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
-      }),
     ]);
     verifyArray.forEach((result) => {
       expect(result.status).toBe('rejected');
@@ -63,7 +54,6 @@ describe('ClientController', () => {
     clientId: testClient.clientId,
     secret: testClient.secret,
     redirectURI: testClient.redirectURIs[0],
-    grantType: testClient.grantTypes[0],
   };
 
   test('verifyCredentials() should validate correct credentials', async () => {
@@ -81,10 +71,6 @@ describe('ClientController', () => {
         ...correctCredentials,
         redirectURI: 'https://localhost/un-registered-url',
       }),
-      ClientController.verifyCredentials({
-        ...correctCredentials,
-        grantType: GrantType.ACCESS_TOKEN, // unregistered token type for this client
-      }),
     ]);
     verifyArray.forEach((result) => {
       expect(result.status).toBe('rejected');
@@ -96,6 +82,7 @@ describe('ClientController', () => {
 
   describe('authorize()', () => {
     let user: User;
+    let grant: string;
 
     const client: BaseClient = {
       clientId:
@@ -107,14 +94,12 @@ describe('ClientController', () => {
         'https://localhost/auth-success',
         'https://localhost/auth-failure',
       ],
-      grantTypes: [GrantType.AUTH_CODE, GrantType.ACCESS_TOKEN],
     };
 
     const clientCredentials: ClientCredentials = {
       clientId: client.clientId,
       secret: client.secret,
       redirectURI: client.redirectURIs[0],
-      grantType: client.grantTypes[0],
     };
 
     beforeAll(async () => {
@@ -128,35 +113,28 @@ describe('ClientController', () => {
         ClientModel.create(client),
       ]);
       user = _user;
-    });
-
-    test('should create auth_code', async () => {
-      const result = await ClientController.authorize({
-        ...clientCredentials,
-        grantType: GrantType.AUTH_CODE,
-        userId: user._id.toHexString(),
-      });
-      expect(result).toEqual(
-        expect.objectContaining({
-          authCode: expect.any(String),
-          grantType: GrantType.AUTH_CODE,
-        })
+      grant = await UserModel.createAuthCode(
+        user._id.toHexString(),
+        client.clientId
       );
     });
 
-    test('should create access_token', async () => {
+    test('should create access_token and refresh_token', async () => {
       const result = await ClientController.authorize({
         ...clientCredentials,
-        grantType: GrantType.ACCESS_TOKEN,
-        userId: user._id.toHexString(),
+        grant,
+        grantType: GrantType.AUTH_CODE,
       });
+      const user = await UserModel.collection.findOne({
+        'authCodes.value': grant,
+      });
+      expect(user).toBeFalsy();
       expect(result).toEqual(
         expect.objectContaining({
           accessToken: expect.objectContaining({
             expiresAt: expect.any(Number),
             value: expect.any(String),
           }),
-          grantType: GrantType.ACCESS_TOKEN,
           refreshToken: expect.objectContaining({
             expiresAt: expect.any(Number),
             value: expect.any(String),

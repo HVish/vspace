@@ -16,11 +16,10 @@ export enum ClientStatus {
 
 export interface BaseClient {
   clientId: string;
-  secret: string;
-  name: string;
   logo: string;
+  name: string;
   redirectURIs: string[];
-  grantTypes: GrantType[];
+  secret: string;
 }
 
 export interface Client extends BaseModel, BaseClient {

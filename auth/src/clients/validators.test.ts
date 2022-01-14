@@ -1,47 +1,40 @@
 import { joi } from '@vspace/core';
 import { GrantType } from './ClientModel';
-import { ClientValidator } from './validators';
+import {
+  CreateTokenValidator,
+  CreateTokenRequest,
+  LaunchRequest,
+  LaunchValidator,
+} from './validators';
 
-describe('ClientValidator', () => {
-  const schema = ClientValidator(joi);
+describe('LaunchValidator', () => {
+  const schema = LaunchValidator(joi);
 
   test('it should return errors', () => {
-    const testQuery = {
-      clientId: '',
-      redirectURI: '',
-      state: '',
-      grantType: '',
-    };
-
-    const result = schema.body.validate(testQuery, { abortEarly: false });
-
+    const data: LaunchRequest = { clientId: '', redirectURI: '' };
+    const result = schema.body.validate(data, { abortEarly: false });
     expect(result.error).toBeDefined();
-
     const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
-
-    for (const key in testQuery) {
+    for (const key in data) {
       expect(invalidKeys).toContain(key);
     }
   });
 
   test('it should not return errors', () => {
-    const result = schema.body.validate({
+    const data: LaunchRequest = {
       clientId: 'test-client-id',
       redirectURI: 'https://localhost/auth/success',
-      state: 'abc',
-      grantType: GrantType.AUTH_CODE,
-    });
+    };
+    const result = schema.body.validate(data);
     expect(result.error).toBeUndefined();
   });
 
   test('it should accept only a valid HTTPS url scheme', () => {
-    const commonValidPayload = {
+    const commonValidPayload: Omit<LaunchRequest, 'redirectURI'> = {
       clientId: 'test-client-id',
-      state: 'abc',
-      grantType: GrantType.AUTH_CODE,
     };
 
-    const invalidInputs = [
+    const invalidURIInputs: LaunchRequest[] = [
       {
         ...commonValidPayload,
         redirectURI: 'http://localhost/auth/success',
@@ -56,59 +49,112 @@ describe('ClientValidator', () => {
       },
     ];
 
-    const validInputs = [
+    const validURIInputs = [
       {
         ...commonValidPayload,
         redirectURI: 'https://localhost/auth/success',
       },
     ];
 
-    invalidInputs.forEach((input) => {
+    invalidURIInputs.forEach((input) => {
       const result = schema.body.validate(input);
       expect(result.error?.details[0]).toBeDefined();
       expect(result.error?.details[0].path).toContain('redirectURI');
     });
 
-    validInputs.forEach((input) => {
+    validURIInputs.forEach((input) => {
+      const result = schema.body.validate(input);
+      expect(result.error).toBeUndefined();
+    });
+  });
+});
+
+describe('CreateTokenValidator', () => {
+  const schema = CreateTokenValidator(joi);
+
+  test('it should return errors', () => {
+    const data: CreateTokenRequest = {
+      clientId: '',
+      grant: '',
+      grantType: '' as GrantType.AUTH_CODE,
+      redirectURI: '',
+      secret: '',
+    };
+    const result = schema.body.validate(data, { abortEarly: false });
+    expect(result.error).toBeDefined();
+    const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
+    for (const key in data) {
+      expect(invalidKeys).toContain(key);
+    }
+  });
+
+  test('it should not return errors', () => {
+    const data: CreateTokenRequest = {
+      clientId: 'test-client-id',
+      grant: 'saf134Afdsf!33',
+      grantType: GrantType.AUTH_CODE,
+      redirectURI: 'https://localhost/auth/success',
+      secret: '@1234$$3123##',
+    };
+    const result = schema.body.validate(data);
+    expect(result.error).toBeUndefined();
+  });
+
+  test('it should accept only a valid HTTPS url scheme', () => {
+    const commonValidPayload: Omit<CreateTokenRequest, 'redirectURI'> = {
+      clientId: 'test-client-id',
+      grant: 'saf134Afdsf!33',
+      grantType: GrantType.AUTH_CODE,
+      secret: '@1234$$3123##',
+    };
+
+    const invalidURIInputs: CreateTokenRequest[] = [
+      {
+        ...commonValidPayload,
+        redirectURI: 'http://localhost/auth/success',
+      },
+      {
+        ...commonValidPayload,
+        redirectURI: 'ftp://localhost/auth/success',
+      },
+      {
+        ...commonValidPayload,
+        redirectURI: 'random invalid uri format',
+      },
+    ];
+
+    const validURIInputs = [
+      {
+        ...commonValidPayload,
+        redirectURI: 'https://localhost/auth/success',
+      },
+    ];
+
+    invalidURIInputs.forEach((input) => {
+      const result = schema.body.validate(input);
+      expect(result.error?.details[0]).toBeDefined();
+      expect(result.error?.details[0].path).toContain('redirectURI');
+    });
+
+    validURIInputs.forEach((input) => {
       const result = schema.body.validate(input);
       expect(result.error).toBeUndefined();
     });
   });
 
-  test('it should accept only valid grantType', () => {
-    const commonValidPayload = {
+  test('should not allow any grant types other than auth_code', () => {
+    const data: CreateTokenRequest = {
       clientId: 'test-client-id',
-      state: 'abc',
+      grant: 'saf134Afdsf!33',
+      grantType: GrantType.AUTH_CODE,
       redirectURI: 'https://localhost/auth/success',
+      secret: '@1234$$3123##',
     };
-
-    const invalidInputs = [
-      {
-        ...commonValidPayload,
-        grantType: '',
-      },
-      {
-        ...commonValidPayload,
-        grantType: 'abc',
-      },
-    ];
-
-    const validInputs = [
-      {
-        ...commonValidPayload,
-        grantType: GrantType.AUTH_CODE,
-      },
-    ];
-
-    invalidInputs.forEach((input) => {
-      const result = schema.body.validate(input);
-      expect(result.error?.details[0]).toBeDefined();
-      expect(result.error?.details[0].path).toContain('grantType');
+    const result = schema.body.validate({
+      ...data,
+      grantType: GrantType.ACCESS_TOKEN,
     });
-
-    validInputs.forEach((input) => {
-      const result = schema.body.validate(input);
-      expect(result.error).toBeUndefined();
-    });
+    expect(result.error?.details[0]).toBeDefined();
+    expect(result.error?.details[0].path).toContain('grantType');
   });
 });

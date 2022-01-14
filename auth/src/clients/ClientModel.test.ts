@@ -1,4 +1,4 @@
-import { BaseClient, ClientModel, GrantType } from './ClientModel';
+import { BaseClient, ClientModel } from './ClientModel';
 
 describe('ClientModel', () => {
   const testClient: BaseClient = {
@@ -11,7 +11,6 @@ describe('ClientModel', () => {
       'https://localhost/auth-success',
       'https://localhost/auth-failure',
     ],
-    grantTypes: [GrantType.AUTH_CODE],
   };
 
   test('it should generate a valid client id', () => {

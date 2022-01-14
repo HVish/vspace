@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import {
-  UnSupportedAuthStrategyError,
+  UnSupportedAuthSchemeError,
   AuthTokenExpiredError,
   AuthTokenNotProvidedError,
   MalformedAuthTokenError,
@@ -17,14 +17,14 @@ async function authenticate<P, ResBody, ReqBody, ReqQuery, Locals>(
   _res: Response<ResBody, Locals>,
   next: NextFunction
 ) {
-  const [strategy, token] = (req.headers.authorization || '').split(' ');
+  const [scheme, token] = (req.headers.authorization || '').split(' ');
 
   if (!token) {
     return next(new AuthTokenNotProvidedError());
   }
 
-  if (strategy !== AuthStrategy.BEARER) {
-    return next(new UnSupportedAuthStrategyError());
+  if (scheme !== AuthStrategy.BEARER) {
+    return next(new UnSupportedAuthSchemeError());
   }
 
   try {

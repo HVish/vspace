@@ -1,8 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import supertest from 'supertest';
 import server from '../server';
-import { LoginRequest } from './UserController';
 import { BaseUser, UserModel } from './UserModel';
+import { LoginBody } from './validators';
 
 const request = supertest(server);
 
@@ -45,7 +45,7 @@ describe('POST /users/v1/login', () => {
   });
 
   test('should send 201 status', async () => {
-    const loginRequest: LoginRequest = {
+    const loginRequest: LoginBody = {
       username: testUser.username,
       password: testUser.password,
     };
@@ -71,7 +71,7 @@ describe('POST /users/v1/login', () => {
   });
 
   test('should send 401 status for wrong credentials', async () => {
-    const loginRequest: LoginRequest = {
+    const loginRequest: LoginBody = {
       username: testUser.username,
       password: 'wrong_password',
     };

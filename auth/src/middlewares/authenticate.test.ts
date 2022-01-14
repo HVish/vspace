@@ -3,7 +3,7 @@ import {
   AuthTokenExpiredError,
   AuthTokenNotProvidedError,
   MalformedAuthTokenError,
-  UnSupportedAuthStrategyError,
+  UnSupportedAuthSchemeError,
 } from '../shared/errors';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { JWT } from '../utils/jwt';
@@ -39,12 +39,12 @@ describe('authenticate() middleware', () => {
     expect(next.mock.calls[0][0]).toBeInstanceOf(AuthTokenNotProvidedError);
   });
 
-  test('should call next with UnSupportedAuthStrategyError', async () => {
+  test('should call next with UnSupportedAuthSchemeError', async () => {
     const next = jest.fn();
-    const request = createMockRequest(`Strategy ${validJWT}`);
+    const request = createMockRequest(`Scheme ${validJWT}`);
     await authenticate(request, {} as Response, next);
     expect(next).toHaveBeenCalled();
-    expect(next.mock.calls[0][0]).toBeInstanceOf(UnSupportedAuthStrategyError);
+    expect(next.mock.calls[0][0]).toBeInstanceOf(UnSupportedAuthSchemeError);
   });
 
   test('should call next with MalformedAuthTokenError', async () => {

@@ -1,18 +1,43 @@
 import { middlewares } from '@vspace/core';
+import { ErrorBody } from '@vspace/core/dist/middlewares';
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ClientController, LaunchData } from './ClientController';
-import { ClientValidator } from './validators';
+import authenticate from '../middlewares/authenticate';
+import { AuthroizeResponse, ClientController } from './ClientController';
+import {
+  CreateTokenRequest,
+  CreateTokenValidator,
+  LaunchRequest,
+  LaunchValidator,
+} from './validators';
 
 const clientRoutes = Router();
 
-clientRoutes.post(
+interface VerifyClientResponse {
+  valid: boolean;
+}
+
+clientRoutes.post<never, ErrorBody | VerifyClientResponse, LaunchRequest>(
   '/clients/verify',
-  middlewares.validate(ClientValidator),
+  middlewares.validate(LaunchValidator),
   async (req, res, next) => {
     try {
-      await ClientController.verifyLaunch(req.body as unknown as LaunchData);
+      await ClientController.verifyLaunch(req.body);
       res.status(StatusCodes.OK).json({ valid: true });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+clientRoutes.post<never, ErrorBody | AuthroizeResponse, CreateTokenRequest>(
+  '/clients/authorize',
+  authenticate,
+  middlewares.validate(CreateTokenValidator),
+  async (req, res, next) => {
+    try {
+      const result = await ClientController.authorize(req.body);
+      res.status(StatusCodes.OK).json(result);
     } catch (error) {
       next(error);
     }

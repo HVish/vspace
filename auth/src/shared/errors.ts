@@ -13,8 +13,8 @@ export const AuthTokenNotProvidedError = ServerErrorFactory({
   defaultmessage: 'Auth token is missing.',
 });
 
-export const UnSupportedAuthStrategyError = ServerErrorFactory({
-  name: 'UnSupportedAuthStrategyError',
+export const UnSupportedAuthSchemeError = ServerErrorFactory({
+  name: 'UnSupportedAuthSchemeError',
   defaultCode: StatusCodes.FORBIDDEN,
   defaultmessage: 'This authorization strategy is not supported.',
 });

@@ -2,48 +2,28 @@ import { InvalidCredentialsError } from '../shared/errors';
 import { UserModel } from '../users/UserModel';
 import { Hash } from '../utils/hash';
 import { ClientModel, GrantType } from './ClientModel';
+import { UnSupportedGrantTypeError } from './errors';
+import {
+  ClientCredentials,
+  CreateTokenRequest,
+  LaunchRequest,
+} from './validators';
 
-export interface LaunchData {
-  clientId: string;
-  grantType: GrantType;
-  redirectURI: string;
-}
-
-export interface ClientCredentials {
-  clientId: string;
-  grantType: GrantType;
-  redirectURI: string;
-  secret: string;
-}
-
-export interface CreateTokenRequest extends ClientCredentials {
-  userId: string;
-}
-
-interface AuthCodeResponse {
-  authCode: string;
-  grantType: GrantType;
-}
-
-interface AccessTokenResponse {
+export interface AuthroizeResponse {
   accessToken: {
     value: string;
     expiresAt: UnixTime;
   };
-  grantType: GrantType;
   refreshToken: {
     value: string;
     expiresAt: UnixTime;
   };
 }
 
-type AuthroizeResponse = AuthCodeResponse | AccessTokenResponse;
-
 export const ClientController = Object.freeze({
-  async verifyLaunch({ clientId, grantType, redirectURI }: LaunchData) {
+  async verifyLaunch({ clientId, redirectURI }: LaunchRequest) {
     const client = await ClientModel.collection.findOne({
       clientId,
-      grantTypes: grantType,
       redirectURIs: redirectURI,
     });
 
@@ -55,13 +35,11 @@ export const ClientController = Object.freeze({
   },
   async verifyCredentials({
     clientId,
-    grantType,
     redirectURI,
     secret,
   }: ClientCredentials) {
     const client = await ClientModel.collection.findOne({
       clientId,
-      grantTypes: grantType,
       redirectURIs: redirectURI,
     });
 
@@ -78,26 +56,35 @@ export const ClientController = Object.freeze({
     return true;
   },
   async authorize({
-    userId,
+    grant,
+    grantType,
     ...credentials
   }: CreateTokenRequest): Promise<AuthroizeResponse> {
+    const { clientId } = credentials;
     await this.verifyCredentials(credentials);
-    const { grantType } = credentials;
-    switch (grantType) {
-      case GrantType.AUTH_CODE: {
-        const authCode = await UserModel.createAuthCode(
-          userId,
-          credentials.clientId
-        );
-        return { authCode, grantType };
-      }
-      case GrantType.ACCESS_TOKEN: {
-        const [accessToken, refreshToken] = await Promise.all([
-          UserModel.createAccessToken(userId, credentials.clientId),
-          UserModel.createRefreshToken(userId, credentials.clientId),
-        ]);
-        return { accessToken, grantType, refreshToken };
-      }
+
+    if (grantType !== GrantType.AUTH_CODE) {
+      throw new UnSupportedGrantTypeError();
     }
+
+    const user = await UserModel.collection.findOne({
+      authCodes: {
+        $elemMatch: { clientId, value: grant },
+      },
+    });
+
+    if (!user) {
+      throw new InvalidCredentialsError();
+    }
+
+    const userId = user._id.toHexString();
+
+    const [accessToken, refreshToken] = await Promise.all([
+      UserModel.createAccessToken(userId, credentials.clientId),
+      UserModel.createRefreshToken(userId, credentials.clientId),
+      UserModel.deleteAuthCode(grant, userId),
+    ]);
+
+    return { accessToken, refreshToken };
   },
 });
