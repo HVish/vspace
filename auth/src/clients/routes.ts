@@ -18,7 +18,7 @@ interface VerifyClientResponse {
 }
 
 clientRoutes.post<never, ErrorBody | VerifyClientResponse, LaunchRequest>(
-  '/clients/verify',
+  '/clients/v1/verify',
   middlewares.validate(LaunchValidator),
   async (req, res, next) => {
     try {
@@ -31,7 +31,7 @@ clientRoutes.post<never, ErrorBody | VerifyClientResponse, LaunchRequest>(
 );
 
 clientRoutes.post<never, ErrorBody | AuthroizeResponse, CreateTokenRequest>(
-  '/clients/authorize',
+  '/clients/v1/authorize',
   authenticate,
   middlewares.validate(CreateTokenValidator),
   async (req, res, next) => {

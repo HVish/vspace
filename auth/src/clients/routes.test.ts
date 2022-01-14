@@ -32,9 +32,9 @@ beforeAll(async () => {
   user = _user;
 });
 
-describe('POST /clients/verify', () => {
+describe('POST /clients/v1/verify', () => {
   test('should send 200 status', async () => {
-    const response = await request.post('/clients/verify').send({
+    const response = await request.post('/clients/v1/verify').send({
       clientId: testClient.clientId,
       redirectURI: testClient.redirectURIs[0],
     });
@@ -44,7 +44,7 @@ describe('POST /clients/verify', () => {
     });
   });
   test('should send 401 status for wrong client redirect URI', async () => {
-    const response = await request.post('/clients/verify').send({
+    const response = await request.post('/clients/v1/verify').send({
       clientId: testClient.clientId,
       redirectURI: 'https://hacker/auth-success',
     });
@@ -52,7 +52,7 @@ describe('POST /clients/verify', () => {
   });
 });
 
-describe('POST /clients/authorize', () => {
+describe('POST /clients/v1/authorize', () => {
   let jwt: string;
   let authCode: string;
 
@@ -64,7 +64,7 @@ describe('POST /clients/authorize', () => {
 
   test('should send 200 status', async () => {
     const response = await request
-      .post('/clients/authorize')
+      .post('/clients/v1/authorize')
       .set('Authorization', `Bearer ${jwt}`)
       .send({
         clientId: testClient.clientId,
@@ -87,7 +87,7 @@ describe('POST /clients/authorize', () => {
   });
   test('should send 401 status for wrong client redirect URI', async () => {
     const response = await request
-      .post('/clients/authorize')
+      .post('/clients/v1/authorize')
       .set('Authorization', `Bearer ${jwt}`)
       .send({
         clientId: testClient.clientId,
