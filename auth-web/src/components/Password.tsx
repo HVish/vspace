@@ -6,16 +6,18 @@ import { ReactComponent as LockIcon } from '../assets/lock.svg';
 import Input from './Input';
 
 interface Props {
+  autoComplete?: 'new-password' | 'current-password';
   error?: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
   value: string;
 }
 
-const Password = ({ error, onChange, placeholder, value }: Props) => {
+const Password = ({ autoComplete, error, onChange, placeholder, value }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
   return (
     <Input
+      autoComplete={autoComplete}
       type={showPassword ? 'text' : 'password'}
       error={error}
       value={value}

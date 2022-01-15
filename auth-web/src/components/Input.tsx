@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import clsx from 'clsx';
 
 interface Props {
+  autoComplete?: 'off' | 'name' | 'email' | 'new-password' | 'current-password';
   className?: string;
   error?: string;
   leftIcon?: ReactNode;
@@ -12,7 +13,7 @@ interface Props {
   value: string;
 }
 
-const Input = ({ className, error, leftIcon, onChange, placeholder, rightIcon, type, value }: Props) => {
+const Input = ({ autoComplete, className, error, leftIcon, onChange, placeholder, rightIcon, type, value }: Props) => {
   return (
     <div
       className={clsx('input', className, {
@@ -23,7 +24,14 @@ const Input = ({ className, error, leftIcon, onChange, placeholder, rightIcon, t
     >
       <div className="input__wrapper">
         {leftIcon && <div className="input__left-icon">{leftIcon}</div>}
-        <input className="input__field" type={type} value={value} onChange={onChange} placeholder={placeholder} />
+        <input
+          className="input__field"
+          autoComplete={autoComplete}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
         {rightIcon && <div className="input__right-icon">{rightIcon}</div>}
         <div className="input__highlighter" />
       </div>

@@ -1,4 +1,3 @@
-import MongoService from '../db';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { BaseUser, UserModel } from './UserModel';
 
@@ -10,14 +9,6 @@ describe('User Model', () => {
     password: 'test_password',
     username: 'test_username',
   };
-
-  beforeAll(async () => {
-    MongoService.start();
-  });
-
-  afterAll(async () => {
-    await MongoService.client.close();
-  });
 
   test('should create a user', async () => {
     await UserModel.create(testUser);
