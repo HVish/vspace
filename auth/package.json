@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "start:dev": "NODE_ENV=development nodemon",
-    "build": "rimraf ./dist && tsc",
+    "build": "rimraf dist types && tsc",
     "start": "yarn run build && NODE_ENV=production node dist/index.js"
   },
   "dependencies": {

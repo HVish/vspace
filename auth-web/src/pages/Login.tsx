@@ -1,7 +1,6 @@
 import { FormEventHandler, useState } from 'react';
 import Input from '../components/Input';
 import { ReactComponent as PersonIcon } from '../assets/person.svg';
-import { ReactComponent as LockIcon } from '../assets/lock.svg';
 import { ReactComponent as AccountIcon } from '../assets/account.svg';
 import Button from '../components/Button';
 import Password from '../components/Password';

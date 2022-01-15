@@ -1,10 +1,10 @@
 import { InvalidCredentialsError } from '../shared/errors';
 import { UsernameExistsError } from './errors';
 import { UserController } from './UserController';
-import { BaseUser, UserModel } from './UserModel';
+import { BaseUserWithoutId, UserModel } from './UserModel';
 
 describe('UserController', () => {
-  const testUser: BaseUser = {
+  const testUser: BaseUserWithoutId = {
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',

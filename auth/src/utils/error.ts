@@ -6,7 +6,7 @@ interface ErrorConfig {
   defaultmessage: string;
 }
 
-interface ErrorParams<T> {
+export interface ErrorParams<T> {
   code?: StatusCodes;
   message?: string;
   extras?: T;

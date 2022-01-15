@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { middlewares } from '@vspace/core';
 
-import { BaseUser } from './UserModel';
+import { BaseUserWithoutId } from './UserModel';
 import {
   GetAuthCodeQuery,
   GetAuthCodeValidator,
@@ -17,7 +17,7 @@ import { ErrorBody } from '@vspace/core/dist/middlewares';
 
 const userRoutes = Router();
 
-userRoutes.post<never, ErrorBody | AuthResponse, BaseUser>(
+userRoutes.post<never, ErrorBody | AuthResponse, BaseUserWithoutId>(
   '/users/v1',
   middlewares.validate(SignupValidator),
   async (req, res, next) => {

@@ -3,7 +3,7 @@ import { BaseUser } from './UserModel';
 
 export const SignupValidator = (joi: joi.Root) => ({
   body: joi.object<Omit<BaseUser, 'userId'>, true>({
-    avatar: joi.string().uri({ scheme: 'https' }).required(),
+    avatar: joi.string().uri({ scheme: 'https' }).optional(),
     name: joi.string().required(),
     username: joi.string().required(),
     password: joi.string().required(),

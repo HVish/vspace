@@ -1,5 +1,5 @@
 import { joi } from '@vspace/core';
-import { BaseUser } from './UserModel';
+import { BaseUserWithoutId } from './UserModel';
 import {
   GetAuthCodeQuery,
   GetAuthCodeValidator,
@@ -12,7 +12,7 @@ describe('SignupValidator', () => {
   const schema = SignupValidator(joi);
 
   test('it should return errors', () => {
-    const testQuery: BaseUser = {
+    const testQuery: BaseUserWithoutId = {
       avatar: '',
       name: '',
       username: '',
@@ -41,13 +41,13 @@ describe('SignupValidator', () => {
   });
 
   test('it should accept only a valid https url scheme for avatar', () => {
-    const commonValidPayload: Omit<BaseUser, 'avatar'> = {
+    const commonValidPayload: BaseUserWithoutId = {
       name: 'Test name',
       username: 'user_name',
       password: 'test_password',
     };
 
-    const invalidInputs: BaseUser[] = [
+    const invalidInputs: BaseUserWithoutId[] = [
       {
         ...commonValidPayload,
         avatar: 'ftp://localhost/auth/success',

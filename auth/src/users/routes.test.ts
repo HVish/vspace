@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
 import supertest from 'supertest';
 import server from '../server';
-import { BaseUser, UserModel } from './UserModel';
+import { BaseUser, BaseUserWithoutId, UserModel } from './UserModel';
 import { LoginBody } from './validators';
 
 const request = supertest(server);
 
 describe('POST /users/v1', () => {
-  const testUser: BaseUser = {
+  const testUser: BaseUserWithoutId = {
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',
@@ -34,6 +34,7 @@ describe('POST /users/v1', () => {
 
 describe('POST /users/v1/login', () => {
   const testUser: BaseUser = {
+    userId: 'user_id.fTC5paVbEzEpfkBmbiferdh7G7f4cWttYCyzT2z5Zxo',
     name: 'test name',
     avatar: 'https://localhost/images/test.png',
     password: 'test_password',
@@ -52,7 +53,7 @@ describe('POST /users/v1/login', () => {
     const response = await request.post('/users/v1/login').send(loginRequest);
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.body).toMatchObject({
-      userId: expect.any(String),
+      userId: testUser.userId,
       accessToken: expect.objectContaining({
         expiresAt: expect.any(Number),
         value: expect.any(String),

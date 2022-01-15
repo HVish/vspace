@@ -1,7 +1,7 @@
 import { InvalidCredentialsError } from '../shared/errors';
 import { Hash } from '../utils/hash';
 import { UsernameExistsError } from './errors';
-import { BaseUser, UserModel } from './UserModel';
+import { BaseUserWithoutId, UserModel } from './UserModel';
 import { LoginBody } from './validators';
 
 export interface AuthResponse {
@@ -13,7 +13,7 @@ export interface AuthResponse {
 }
 
 export const UserController = Object.freeze({
-  async signup(signupData: BaseUser): Promise<AuthResponse> {
+  async signup(signupData: BaseUserWithoutId): Promise<AuthResponse> {
     const existingUser = await UserModel.collection.findOne({
       username: signupData.username,
     });

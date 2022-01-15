@@ -23,8 +23,10 @@ export interface BaseUser {
   name: string;
   username: string;
   password: string;
-  avatar: string;
+  avatar?: string;
 }
+
+export type BaseUserWithoutId = Omit<BaseUser, 'userId'>;
 
 export interface User extends BaseModel, BaseUser {
   authCodes: Token[];
