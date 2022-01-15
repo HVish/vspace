@@ -1,4 +1,9 @@
 @import './config/mixin';
 @import './config/normalize';
+
+@import './loader';
+@import './input';
+@import './button';
+
 @import './page';
-@import './auth-form';
+@import './auth';
