@@ -7,8 +7,11 @@ import Button from '../components/Button';
 import Password from '../components/Password';
 import { signup } from '../shared/api';
 import { setAccessToken } from '../shared/session';
+import { useClientParams } from '../shared/hooks';
 
 const Signup = () => {
+  const { authorize } = useClientParams();
+
   const [isSigningUp, setIsSigningUp] = useState(false);
 
   const [name, setName] = useState({
@@ -58,7 +61,7 @@ const Signup = () => {
       });
       setAccessToken(response.accessToken.value);
       setIsSigningUp(false);
-      // TODO: proceed furthure based on url query params
+      authorize();
     } catch (error) {
       console.error(error);
       setIsSigningUp(false);

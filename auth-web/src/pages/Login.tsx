@@ -6,8 +6,11 @@ import Button from '../components/Button';
 import Password from '../components/Password';
 import { login } from '../shared/api';
 import { setAccessToken } from '../shared/session';
+import { useClientParams } from '../shared/hooks';
 
 const Login = () => {
+  const { authorize } = useClientParams();
+
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [email, setEmail] = useState({
@@ -43,7 +46,7 @@ const Login = () => {
       const response = await login({ username: email.value, password: password.value });
       setAccessToken(response.accessToken.value);
       setIsLoggingIn(false);
-      // TODO: proceed furthure based on url query params
+      authorize();
     } catch (error) {
       console.error(error);
       setIsLoggingIn(false);
