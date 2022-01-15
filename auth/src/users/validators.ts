@@ -2,7 +2,7 @@ import { joi } from '@vspace/core';
 import { BaseUser } from './UserModel';
 
 export const SignupValidator = (joi: joi.Root) => ({
-  body: joi.object<BaseUser, true>({
+  body: joi.object<Omit<BaseUser, 'userId'>, true>({
     avatar: joi.string().uri({ scheme: 'https' }).required(),
     name: joi.string().required(),
     username: joi.string().required(),
