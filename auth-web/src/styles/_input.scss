@@ -1,6 +1,7 @@
 $red: #f44336;
 $blue: #2196f3;
 $light-grey: #eee;
+$icon-size: 48px;
 
 .input {
   min-height: 74px;
@@ -59,11 +60,19 @@ $light-grey: #eee;
 
   &__left-icon,
   &__right-icon {
-    min-width: 34px;
+    min-width: $icon-size;
     text-align: center;
   }
 
   &__error {
     line-height: 1.5;
+  }
+
+  &__toggle-password {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    width: $icon-size;
+    height: $icon-size;
   }
 }

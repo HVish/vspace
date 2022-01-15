@@ -4,6 +4,7 @@ import { ReactComponent as PersonIcon } from '../assets/person.svg';
 import { ReactComponent as LockIcon } from '../assets/lock.svg';
 import { ReactComponent as AccountIcon } from '../assets/account.svg';
 import Button from '../components/Button';
+import Password from '../components/Password';
 
 const Login = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -35,9 +36,7 @@ const Login = () => {
           placeholder="Username"
           onChange={(e) => setUsername({ value: e.target.value, error: '' })}
         />
-        <Input
-          type="password"
-          leftIcon={<LockIcon />}
+        <Password
           value={password.value}
           error={password.error}
           placeholder="Password"
