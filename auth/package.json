@@ -2,13 +2,13 @@
   "name": "@vspace/auth",
   "version": "1.0.0",
   "description": "sso for all vspace services",
-  "main": "dist/index.js",
+  "main": "./dist/lib/index.js",
+  "files": [
+    "./dist/**/*"
+  ],
   "author": "Vishnu Singh",
   "license": "MIT",
   "private": true,
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "test": "NODE_ENV=test jest --maxWorkers=1",
     "test:watch": "yarn test --watch",
