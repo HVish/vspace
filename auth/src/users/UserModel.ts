@@ -4,7 +4,7 @@ import { Hash } from '../utils/hash';
 import { BaseModel } from '../shared/BaseModel';
 import { randomBytes } from 'crypto';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
-import { JWT } from '../utils/jwt';
+import { JWT, PrivateKey } from '../utils/jwt';
 
 export enum UserStatus {
   ACTIVE = 'active',
@@ -82,9 +82,18 @@ export const UserModel = Object.freeze({
     );
   },
 
-  async createAccessToken(userId: string, clientId?: string) {
-    const payload = clientId ? { clientId, userId } : { userId };
-    const { token: value, expiresAt } = await JWT.create(payload);
+  async createAccessToken(
+    userId: string,
+    client?: {
+      clientId: string;
+      privateKey: PrivateKey;
+    }
+  ) {
+    const payload = client ? { clientId: client.clientId, userId } : { userId };
+    const { token: value, expiresAt } = await JWT.create(
+      payload,
+      client?.privateKey
+    );
     return { value, expiresAt };
   },
 

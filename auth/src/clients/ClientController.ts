@@ -33,7 +33,7 @@ export const ClientController = Object.freeze({
 
     return true;
   },
-  async verifyCredentials({
+  async getClientByCredentials({
     clientId,
     redirectURI,
     secret,
@@ -53,7 +53,7 @@ export const ClientController = Object.freeze({
       throw new InvalidCredentialsError();
     }
 
-    return true;
+    return client;
   },
   async authorize({
     grant,
@@ -61,7 +61,7 @@ export const ClientController = Object.freeze({
     ...credentials
   }: CreateTokenRequest): Promise<AuthroizeResponse> {
     const { clientId } = credentials;
-    await this.verifyCredentials(credentials);
+    const client = await this.getClientByCredentials(credentials);
 
     if (grantType !== GrantType.AUTH_CODE) {
       throw new UnSupportedGrantTypeError();
@@ -80,7 +80,13 @@ export const ClientController = Object.freeze({
     const { userId } = user;
 
     const [accessToken, refreshToken] = await Promise.all([
-      UserModel.createAccessToken(userId, credentials.clientId),
+      UserModel.createAccessToken(userId, {
+        clientId: client.clientId,
+        privateKey: {
+          key: client.jwt.privateKey,
+          passphrase: credentials.secret,
+        },
+      }),
       UserModel.createRefreshToken(userId, credentials.clientId),
       UserModel.deleteAuthCode(grant, userId),
     ]);

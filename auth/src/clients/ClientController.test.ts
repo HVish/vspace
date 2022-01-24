@@ -56,18 +56,24 @@ describe('ClientController', () => {
     redirectURI: testClient.redirectURIs[0],
   };
 
-  test('verifyCredentials() should validate correct credentials', async () => {
-    const result = await ClientController.verifyCredentials(correctCredentials);
-    expect(result).toBe(true);
+  test('getClientByCredentials() should return client for valid credentials', async () => {
+    const result = await ClientController.getClientByCredentials(
+      correctCredentials
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        clientId: correctCredentials.clientId,
+      })
+    );
   });
 
-  test('verifyCredentials() should reject for invalid credentials', async () => {
+  test('getClientByCredentials() should reject for invalid credentials', async () => {
     const verifyArray = await Promise.allSettled([
-      ClientController.verifyCredentials({
+      ClientController.getClientByCredentials({
         ...correctCredentials,
         secret: 'wrong_secret',
       }),
-      ClientController.verifyCredentials({
+      ClientController.getClientByCredentials({
         ...correctCredentials,
         redirectURI: 'https://localhost/un-registered-url',
       }),

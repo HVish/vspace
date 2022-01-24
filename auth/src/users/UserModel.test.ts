@@ -1,3 +1,4 @@
+import { mockPrivateKey } from '../mocks/jwt';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { BaseUser, UserModel } from './UserModel';
 
@@ -12,7 +13,9 @@ describe('User Model', () => {
 
   test('should create a user', async () => {
     await UserModel.create(testUser);
-    const result = await UserModel.collection.findOne({ userId: testUser.userId });
+    const result = await UserModel.collection.findOne({
+      userId: testUser.userId,
+    });
 
     const { password: _, ...matchProps } = testUser;
 
@@ -45,12 +48,12 @@ describe('User Model', () => {
     const accessToken1 = await UserModel.createAccessToken(testUser.userId);
     expect(accessToken1).toBeTruthy();
 
-    const accessToken2 = await UserModel.createAccessToken(
-      testUser.userId,
-      clientId
-    );
-    expect(accessToken2).toBeTruthy();
+    const accessToken2 = await UserModel.createAccessToken(testUser.userId, {
+      clientId,
+      privateKey: mockPrivateKey,
+    });
 
+    expect(accessToken2).toBeTruthy();
     expect(accessToken1).not.toBe(accessToken2);
   });
 

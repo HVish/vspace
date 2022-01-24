@@ -31,6 +31,14 @@ describe('ClientModel', () => {
     const { secret: _, ...matchProps } = testClient;
 
     expect(result).toBeDefined();
-    expect(result).toEqual(expect.objectContaining(matchProps));
+    expect(result).toEqual(
+      expect.objectContaining({
+        ...matchProps,
+        jwt: {
+          privateKey: expect.any(String),
+          publicKey: expect.any(String),
+        },
+      })
+    );
   });
 });
