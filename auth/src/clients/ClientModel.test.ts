@@ -2,6 +2,7 @@ import { BaseClient, ClientModel } from './ClientModel';
 
 describe('ClientModel', () => {
   const testClient: BaseClient = {
+    adminId: 'user_id.4t8B7BPU_bcHCR7UmUR02spwEUZFyIQ6RnXGWVfntvU',
     clientId:
       'client_id.DofWnfd411fDEyl+EhsRNyRRkv5Q/mPSVqlC/h85NFK2G3b3M1PyUm0oEu/ArnieU8hSyq+PoyRsp8YGTLg/Ag==',
     secret: 'test_secret',

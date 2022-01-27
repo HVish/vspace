@@ -18,6 +18,7 @@ export enum ClientStatus {
 }
 
 export interface BaseClient {
+  adminId: string;
   clientId: string;
   logo: string;
   name: string;

@@ -15,6 +15,7 @@ const user: BaseUser = {
 };
 
 const testClient: BaseClient = {
+  adminId: 'user_id.ymOr488bmyGHonSUvqvm1QT2xUM0urES2PtFRCTm44U',
   clientId:
     'client_id.ZDHk-5LTLWO0TOVP1WhzKqNliEGk6eIgEUrENoA2SZRMOrWE4o-Br_pcV-nK_zVT4bgFw2UCXGutu_rv_pWqCg',
   secret: 'fNFiPTQRVZOVBSuq',
