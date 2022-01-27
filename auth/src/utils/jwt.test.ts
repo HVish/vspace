@@ -1,5 +1,5 @@
 import { TokenExpiredError } from 'jsonwebtoken';
-import { mockRSAKeyPair } from '../mocks/jwt';
+import { mockRSAKeyPair } from '../test-utils/mocks/jwt';
 import { DateTime, DateTimeUnit } from './datetime';
 import { InvalidJWTParamsError, JWT } from './jwt';
 

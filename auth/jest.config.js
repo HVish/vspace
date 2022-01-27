@@ -10,5 +10,5 @@ module.exports = merge.recursive(tsJest, mongoDbJest, {
     },
   },
   setupFiles: ['dotenv/config'],
-  setupFilesAfterEnv: ['./src/setupTests.ts'],
+  setupFilesAfterEnv: ['./src/test-utils/setup.ts'],
 });

@@ -1,4 +1,6 @@
-import MongoService from './db';
+import './NullOrAny';
+
+import MongoService from '../db';
 
 beforeAll(async () => {
   await MongoService.start();

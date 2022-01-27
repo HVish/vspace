@@ -1,4 +1,4 @@
-import { PrivateKey } from '../utils/jwt';
+import { PrivateKey } from '../../utils/jwt';
 
 export const mockPrivateKey: PrivateKey = {
   key:

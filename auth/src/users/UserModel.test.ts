@@ -1,4 +1,4 @@
-import { mockPrivateKey } from '../mocks/jwt';
+import { mockPrivateKey } from '../test-utils/mocks/jwt';
 import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { BaseUser, UserModel } from './UserModel';
 
