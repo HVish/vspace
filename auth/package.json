@@ -10,13 +10,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "NODE_ENV=test jest --maxWorkers=1",
+    "test": "NODE_ENV=test jest src --maxWorkers=1",
     "test:watch": "yarn test --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "start:dev": "NODE_ENV=development nodemon",
-    "build": "rimraf dist types && tsc",
+    "build": "rimraf dist types && tsc --project tsconfig.build.json",
     "start": "yarn run build && NODE_ENV=production node dist/index.js"
   },
   "dependencies": {
