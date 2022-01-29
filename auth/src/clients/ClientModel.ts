@@ -34,6 +34,8 @@ export interface Client extends BaseModel, BaseClient {
   status: ClientStatus;
 }
 
+export type ClientWithoutSecret = Omit<Client, 'secret'>;
+
 export const ClientModel = Object.freeze({
   get COLLECTION_NAME() {
     return 'clients';
@@ -51,7 +53,7 @@ export const ClientModel = Object.freeze({
     secret,
     clientId,
     ...params
-  }: Optional<BaseClient, 'clientId'>) {
+  }: Optional<BaseClient, 'clientId'>): Promise<ClientWithoutSecret> {
     const { publicKey, privateKey } = await generateKeyPair('rsa', {
       modulusLength: 512,
       publicKeyEncoding: {
@@ -75,6 +77,7 @@ export const ClientModel = Object.freeze({
       status: ClientStatus.ACTIVE,
     };
     await this.collection.insertOne(client);
-    return client;
+    const { secret: _, ...clientWithoutSecret } = client;
+    return clientWithoutSecret;
   },
 });

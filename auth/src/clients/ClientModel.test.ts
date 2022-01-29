@@ -31,6 +31,9 @@ describe('ClientModel', () => {
 
     const { secret: _, ...matchProps } = testClient;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((client as any).secret).toBeUndefined();
+
     expect(result).toBeDefined();
     expect(result).toEqual(
       expect.objectContaining({
