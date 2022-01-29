@@ -1,7 +1,7 @@
 import { InvalidCredentialsError } from '../shared/errors';
 import { UserModel } from '../users/UserModel';
 import { Hash } from '../utils/hash';
-import { ClientModel, GrantType } from './ClientModel';
+import { BaseClient, ClientModel, GrantType } from './ClientModel';
 import { UnSupportedGrantTypeError } from './errors';
 import {
   ClientCredentials,
@@ -21,6 +21,9 @@ export interface AuthroizeResponse {
 }
 
 export const ClientController = Object.freeze({
+  async create(baseClient: Optional<BaseClient, 'clientId'>) {
+    return ClientModel.create(baseClient);
+  },
   async verifyLaunch({ clientId, redirectURI }: LaunchRequest) {
     const client = await ClientModel.collection.findOne({
       clientId,

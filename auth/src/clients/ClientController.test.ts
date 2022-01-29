@@ -22,6 +22,40 @@ describe('ClientController', () => {
     await ClientModel.create(testClient);
   });
 
+  test('create() should create a client and return it', async () => {
+    const params: Omit<BaseClient, 'clientId'> = {
+      adminId: 'user_id.1mH1jJ-AfwV_H0Un6V1KXAb2QSsf5EvSpKWss3TYib8',
+      logo: '',
+      name: 'test-client-name',
+      redirectURIs: [],
+      secret: 'test-client-secret',
+    };
+
+    const result = await ClientController.create(params);
+
+    expect(result).toBeDefined();
+    expect(result).toEqual(
+      expect.objectContaining({
+        adminId: params.adminId,
+        name: params.name,
+        logo: params.logo,
+      })
+    );
+
+    const client = await ClientModel.collection.findOne({
+      clientId: result.clientId,
+    });
+
+    expect(client).toBeDefined();
+    expect(client).toEqual(
+      expect.objectContaining({
+        adminId: params.adminId,
+        name: params.name,
+        logo: params.logo,
+      })
+    );
+  });
+
   const validLaunchData: LaunchRequest = {
     clientId: testClient.clientId,
     redirectURI: testClient.redirectURIs[0],
