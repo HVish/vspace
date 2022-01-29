@@ -1,5 +1,16 @@
 import { joi } from '@vspace/core';
-import { GrantType } from './ClientModel';
+import { BaseClient, GrantType } from './ClientModel';
+
+export type CreateClientRequest = Omit<BaseClient, 'adminId' | 'clientId'>;
+
+export const CreateClientValidator = (joi: joi.Root) => ({
+  body: joi.object<CreateClientRequest, true>({
+    logo: joi.string().uri({ scheme: 'https' }).required(),
+    name: joi.string().min(4).required(),
+    redirectURIs: joi.array().items(joi.string().uri({ scheme: 'https' })),
+    secret: joi.string().min(8).required(),
+  }),
+});
 
 export interface LaunchRequest {
   clientId: string;

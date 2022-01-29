@@ -5,7 +5,30 @@ import {
   CreateTokenRequest,
   LaunchRequest,
   LaunchValidator,
+  CreateClientValidator,
+  CreateClientRequest,
 } from './validators';
+
+
+
+describe('CreateClientValidator', () => {
+  const schema = CreateClientValidator(joi);
+
+  test('it should return errors', () => {
+    const data: CreateClientRequest = {
+      logo: '',
+      name: '',
+      redirectURIs: [''],
+      secret: '',
+    };
+    const result = schema.body.validate(data, { abortEarly: false });
+    expect(result.error).toBeDefined();
+    const invalidKeys = (result.error?.details || []).map((e) => e.path[0]);
+    for (const key in data) {
+      expect(invalidKeys).toContain(key);
+    }
+  });
+});
 
 describe('LaunchValidator', () => {
   const schema = LaunchValidator(joi);
