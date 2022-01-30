@@ -1,4 +1,4 @@
-import { BaseClient, ClientModel } from './ClientModel';
+import { BaseClient, Client, ClientModel } from './ClientModel';
 
 describe('ClientModel', () => {
   const testClient: BaseClient = {
@@ -14,7 +14,7 @@ describe('ClientModel', () => {
     ],
   };
 
-  test('it should generate a valid client id', () => {
+  test('generateId() should generate a valid client id', () => {
     const clientId = ClientModel.generateId();
     expect(clientId).toContain('.');
 
@@ -23,16 +23,13 @@ describe('ClientModel', () => {
     expect(token).toBeTruthy();
   });
 
-  test('it should create a client and insert it into database', async () => {
+  test('create() should create a client and insert it into database', async () => {
     const client = await ClientModel.create(testClient);
     const result = await ClientModel.collection.findOne({
       clientId: client.clientId,
     });
 
     const { secret: _, ...matchProps } = testClient;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((client as any).secret).toBeUndefined();
 
     expect(result).toBeDefined();
     expect(result).toEqual(
@@ -44,5 +41,11 @@ describe('ClientModel', () => {
         },
       })
     );
+  });
+
+  test('create() should not return secret and jwt keys', async () => {
+    const client = await ClientModel.create(testClient);
+    expect((client as Client).jwt).toBeUndefined();
+    expect((client as Client).secret).toBeUndefined();
   });
 });

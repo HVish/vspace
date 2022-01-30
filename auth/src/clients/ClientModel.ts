@@ -34,7 +34,7 @@ export interface Client extends BaseModel, BaseClient {
   status: ClientStatus;
 }
 
-export type ClientWithoutSecret = Omit<Client, 'secret'>;
+export type ClientWithoutSecret = Omit<Client, 'jwt' | 'secret'>;
 
 export const ClientModel = Object.freeze({
   get COLLECTION_NAME() {
@@ -77,7 +77,7 @@ export const ClientModel = Object.freeze({
       status: ClientStatus.ACTIVE,
     };
     await this.collection.insertOne(client);
-    const { secret: _, ...clientWithoutSecret } = client;
+    const { jwt: _0, secret: _1, ...clientWithoutSecret } = client;
     return clientWithoutSecret;
   },
 });
