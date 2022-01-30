@@ -3,7 +3,9 @@ import supertest from 'supertest';
 import server from '../server';
 import { BaseUser, UserModel } from '../users/UserModel';
 import { BaseClient, ClientModel, GrantType } from './ClientModel';
+import { CreateClientRequest } from './validators';
 
+let jwt: string;
 const request = supertest(server);
 
 const user: BaseUser = {
@@ -29,6 +31,32 @@ const testClient: BaseClient = {
 
 beforeAll(async () => {
   await Promise.all([UserModel.create(user), ClientModel.create(testClient)]);
+  jwt = (await UserModel.createAccessToken(user.userId)).value;
+});
+
+describe('POST /clients/v1', () => {
+  const payload: CreateClientRequest = {
+    logo: 'https://localhost/images/company_logo.png',
+    name: 'test client name',
+    redirectURIs: [],
+    secret: 'test-client-secret',
+  };
+  test('should send 403 status when auth-token is not provided', async () => {
+    const response = await request.post('/clients/v1').send(payload);
+    expect(response.status).toBe(StatusCodes.FORBIDDEN);
+  });
+  test('should send 200 status', async () => {
+    const response = await request
+      .post('/clients/v1')
+      .set('Authorization', `Bearer ${jwt}`)
+      .send(payload);
+    expect(response.status).toBe(StatusCodes.CREATED);
+    expect(response.body).toMatchObject({
+      logo: payload.logo,
+      name: payload.name,
+      redirectURIs: payload.redirectURIs,
+    });
+  });
 });
 
 describe('POST /clients/v1/verify', () => {
@@ -52,13 +80,10 @@ describe('POST /clients/v1/verify', () => {
 });
 
 describe('POST /clients/v1/authorize', () => {
-  let jwt: string;
   let authCode: string;
 
   beforeAll(async () => {
-    const { userId } = user;
-    jwt = (await UserModel.createAccessToken(userId)).value;
-    authCode = await UserModel.createAuthCode(userId, testClient.clientId);
+    authCode = await UserModel.createAuthCode(user.userId, testClient.clientId);
   });
 
   test('should send 200 status', async () => {

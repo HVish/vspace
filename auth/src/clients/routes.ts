@@ -4,7 +4,10 @@ import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import authenticate from '../middlewares/authenticate';
 import { AuthroizeResponse, ClientController } from './ClientController';
+import { ClientWithoutSecret } from './ClientModel';
 import {
+  CreateClientRequest,
+  CreateClientValidator,
   CreateTokenRequest,
   CreateTokenValidator,
   LaunchRequest,
@@ -12,6 +15,21 @@ import {
 } from './validators';
 
 const clientRoutes = Router();
+
+clientRoutes.post<never, ErrorBody | ClientWithoutSecret, CreateClientRequest>(
+  '/clients/v1',
+  authenticate,
+  middlewares.validate(CreateClientValidator),
+  async (req, res, next) => {
+    try {
+      const adminId = req.userId || '';
+      const client = await ClientController.create({ ...req.body, adminId });
+      res.status(StatusCodes.CREATED).json(client);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 interface VerifyClientResponse {
   valid: boolean;
