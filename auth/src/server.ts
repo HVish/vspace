@@ -11,7 +11,10 @@ function server(): Express {
   // middlewares
   app.use(cors());
   app.use(express.json());
-  app.use(morgan('dev'));
+
+  if (process.env.NODE_ENV !== 'test') {
+    app.use(morgan('dev'));
+  }
 
   // app routes
   app.use(routes);
