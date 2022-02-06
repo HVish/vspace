@@ -24,6 +24,11 @@ export const ClientController = Object.freeze({
   async create(baseClient: Optional<BaseClient, 'clientId'>) {
     return ClientModel.create(baseClient);
   },
+  async getAll(adminId: string) {
+    return ClientModel.collection
+      .find({ adminId }, { projection: { jwt: false, secret: false } })
+      .toArray();
+  },
   async verifyLaunch({ clientId, redirectURI }: LaunchRequest) {
     const client = await ClientModel.collection.findOne({
       clientId,

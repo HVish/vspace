@@ -56,6 +56,29 @@ describe('ClientController', () => {
     );
   });
 
+  test('getAll() should return all clients created by an admin user', async () => {
+    const adminId = 'user_id.3DH7laE-mvujpsfvQHO1Rb0Fq2xac27yJjJl2M90h3Q';
+    const baseClient: Omit<BaseClient, 'adminId' | 'clientId'> = {
+      secret: 'test_secret',
+      name: 'company name',
+      logo: 'https://localhost/images/company_logo.png',
+      redirectURIs: [
+        'https://localhost/auth-success',
+        'https://localhost/auth-failure',
+      ],
+    };
+    const testClients = [
+      { ...baseClient, name: 'client_1', adminId },
+      { ...baseClient, name: 'client_2', adminId },
+    ];
+    await Promise.all(testClients.map((client) => ClientModel.create(client)));
+    const clients = await ClientController.getAll(adminId);
+    expect(clients.length).toBe(testClients.length);
+    expect(clients.map((c) => c.name)).toEqual(
+      expect.arrayContaining(testClients.map((c) => c.name))
+    );
+  });
+
   const validLaunchData: LaunchRequest = {
     clientId: testClient.clientId,
     redirectURI: testClient.redirectURIs[0],
