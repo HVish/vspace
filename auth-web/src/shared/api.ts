@@ -1,5 +1,6 @@
 import request from './request';
 import { getAccessToken } from './session';
+import { Client } from './types';
 
 interface SignupPayload {
   name: string;
@@ -50,6 +51,23 @@ export async function getAuthCode(clientId: string) {
   const accessToken = getAccessToken();
   const response = await request.get<GetAuthCodeResponse>('/users/v1/auth-code', {
     params: { clientId },
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+}
+
+interface RegisterClientPayload {
+  logo: string;
+  name: string;
+  redirectURIs: string[];
+  secret: string;
+}
+
+export async function registerClient(data: RegisterClientPayload) {
+  const accessToken = getAccessToken();
+  const response = await request.post<Client>('/clients/v1', data, {
     headers: {
       authorization: `Bearer ${accessToken}`,
     },
