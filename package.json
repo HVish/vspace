@@ -1,4 +1,12 @@
 {
   "private": true,
-  "workspaces": ["auth", "auth-web", "core"]
+  "workspaces": [
+    "auth",
+    "auth-web",
+    "core"
+  ],
+  "resolutions": {
+    "mini-css-extract-plugin": "2.4.5"
+  },
+  "dependencies": {}
 }
