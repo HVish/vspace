@@ -8,6 +8,9 @@ import { CreateClientRequest } from './validators';
 let jwt: string;
 const request = supertest(server);
 
+let adminJwt: string;
+const adminId = 'user_id.ymOr488bmyGHonSUvqvm1QT2xUM0urES2PtFRCTm44U';
+
 const user: BaseUser = {
   userId: 'user_id.auVNL6KgKozplSRQdnf6nqyX_gcxAPuPVRKIHf6EHb0',
   password: 'test_password',
@@ -17,7 +20,7 @@ const user: BaseUser = {
 };
 
 const testClient: BaseClient = {
-  adminId: 'user_id.ymOr488bmyGHonSUvqvm1QT2xUM0urES2PtFRCTm44U',
+  adminId,
   clientId:
     'client_id.ZDHk-5LTLWO0TOVP1WhzKqNliEGk6eIgEUrENoA2SZRMOrWE4o-Br_pcV-nK_zVT4bgFw2UCXGutu_rv_pWqCg',
   secret: 'fNFiPTQRVZOVBSuq',
@@ -31,7 +34,24 @@ const testClient: BaseClient = {
 
 beforeAll(async () => {
   await Promise.all([UserModel.create(user), ClientModel.create(testClient)]);
-  jwt = (await UserModel.createAccessToken(user.userId)).value;
+  [jwt, adminJwt] = await Promise.all([
+    (await UserModel.createAccessToken(user.userId)).value,
+    (await UserModel.createAccessToken(adminId)).value,
+  ]);
+});
+
+describe('GET /clients/v1', () => {
+  test('should send 403 status when auth-token is not provided', async () => {
+    const response = await request.get('/clients/v1');
+    expect(response.status).toBe(StatusCodes.FORBIDDEN);
+  });
+  test('should send 200 status', async () => {
+    const response = await request
+      .get('/clients/v1')
+      .set('Authorization', `Bearer ${adminJwt}`);
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toHaveLength(1);
+  });
 });
 
 describe('POST /clients/v1', () => {

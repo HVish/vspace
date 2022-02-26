@@ -1,7 +1,12 @@
 import { InvalidCredentialsError } from '../shared/errors';
 import { UserModel } from '../users/UserModel';
 import { Hash } from '../utils/hash';
-import { BaseClient, ClientModel, GrantType } from './ClientModel';
+import {
+  BaseClient,
+  ClientModel,
+  ClientWithoutSecret,
+  GrantType,
+} from './ClientModel';
 import { UnSupportedGrantTypeError } from './errors';
 import {
   ClientCredentials,
@@ -27,7 +32,7 @@ export const ClientController = Object.freeze({
   async getAll(adminId: string) {
     return ClientModel.collection
       .find({ adminId }, { projection: { jwt: false, secret: false } })
-      .toArray();
+      .toArray<ClientWithoutSecret>();
   },
   async verifyLaunch({ clientId, redirectURI }: LaunchRequest) {
     const client = await ClientModel.collection.findOne({

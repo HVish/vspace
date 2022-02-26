@@ -31,6 +31,20 @@ clientRoutes.post<never, ErrorBody | ClientWithoutSecret, CreateClientRequest>(
   }
 );
 
+clientRoutes.get<never, ErrorBody | ClientWithoutSecret[]>(
+  '/clients/v1',
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const adminId = req.userId || '';
+      const clients = await ClientController.getAll(adminId);
+      res.status(StatusCodes.OK).json(clients);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 interface VerifyClientResponse {
   valid: boolean;
 }
