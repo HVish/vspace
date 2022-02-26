@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
-const AES_KEY = process.env.AES_KEY;
+const AES_KEY = process.env.AES_KEY.substring(0, 32);
 
 export const AES = Object.freeze({
   /**
