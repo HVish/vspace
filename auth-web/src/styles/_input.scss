@@ -20,6 +20,7 @@ $icon-size: 48px;
 
   &__field {
     flex: 1;
+    min-width: 0;
     color: inherit;
     border: none;
     outline: none;
