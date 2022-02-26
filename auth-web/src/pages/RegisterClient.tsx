@@ -55,7 +55,7 @@ const RegisterClient = () => {
       await registerClient({
         name: name.value,
         secret: secret.value,
-        logo: '',
+        logo: 'https://s3.ap-south-1.amazonaws.com/missioneasyclasses.com/public/images/thumbnail.png',
         redirectURIs: [redirect.value],
       });
       setIsRegistering(false);
