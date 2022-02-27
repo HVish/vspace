@@ -64,7 +64,6 @@ clientRoutes.post<never, ErrorBody | VerifyClientResponse, LaunchRequest>(
 
 clientRoutes.post<never, ErrorBody | AuthroizeResponse, CreateTokenRequest>(
   '/clients/v1/authorize',
-  authenticate,
   middlewares.validate(CreateTokenValidator),
   async (req, res, next) => {
     try {
