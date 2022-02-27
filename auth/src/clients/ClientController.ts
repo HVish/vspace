@@ -46,14 +46,9 @@ export const ClientController = Object.freeze({
 
     return true;
   },
-  async getClientByCredentials({
-    clientId,
-    redirectURI,
-    secret,
-  }: ClientCredentials) {
+  async getClientByCredentials({ clientId, secret }: ClientCredentials) {
     const client = await ClientModel.collection.findOne({
       clientId,
-      redirectURIs: redirectURI,
     });
 
     if (!client) {

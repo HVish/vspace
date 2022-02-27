@@ -26,7 +26,6 @@ export const LaunchValidator = (joi: joi.Root) => ({
 
 export interface ClientCredentials {
   clientId: string;
-  redirectURI: string;
   secret: string;
 }
 
@@ -41,7 +40,6 @@ export interface CreateTokenRequest extends ClientCredentials {
 export const CreateTokenValidator = (joi: joi.Root) => ({
   body: joi.object<CreateTokenRequest, true>({
     clientId: joi.string().required(),
-    redirectURI: joi.string().uri({ scheme: 'https' }).required(),
     grant: joi.string().required(),
     grantType: joi.string().valid(GrantType.AUTH_CODE).required(),
     secret: joi.string().required(),

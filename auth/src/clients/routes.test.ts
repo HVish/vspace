@@ -107,16 +107,12 @@ describe('POST /clients/v1/authorize', () => {
   });
 
   test('should send 200 status', async () => {
-    const response = await request
-      .post('/clients/v1/authorize')
-      .set('Authorization', `Bearer ${jwt}`)
-      .send({
-        clientId: testClient.clientId,
-        redirectURI: testClient.redirectURIs[0],
-        grant: authCode,
-        grantType: GrantType.AUTH_CODE,
-        secret: testClient.secret,
-      });
+    const response = await request.post('/clients/v1/authorize').send({
+      clientId: testClient.clientId,
+      grant: authCode,
+      grantType: GrantType.AUTH_CODE,
+      secret: testClient.secret,
+    });
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.body).toMatchObject({
       accessToken: expect.objectContaining({
@@ -129,17 +125,13 @@ describe('POST /clients/v1/authorize', () => {
       }),
     });
   });
-  test('should send 401 status for wrong client redirect URI', async () => {
-    const response = await request
-      .post('/clients/v1/authorize')
-      .set('Authorization', `Bearer ${jwt}`)
-      .send({
-        clientId: testClient.clientId,
-        redirectURI: 'https://hacker/auth-success',
-        grant: authCode,
-        grantType: GrantType.AUTH_CODE,
-        secret: testClient.secret,
-      });
+  test('should send 401 status for wrong client secret', async () => {
+    const response = await request.post('/clients/v1/authorize').send({
+      clientId: testClient.clientId,
+      grant: authCode,
+      grantType: GrantType.AUTH_CODE,
+      secret: 'wrong secret',
+    });
     expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
   });
 });

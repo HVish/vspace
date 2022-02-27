@@ -9,8 +9,6 @@ import {
   CreateClientRequest,
 } from './validators';
 
-
-
 describe('CreateClientValidator', () => {
   const schema = CreateClientValidator(joi);
 
@@ -100,7 +98,6 @@ describe('CreateTokenValidator', () => {
       clientId: '',
       grant: '',
       grantType: '' as GrantType.AUTH_CODE,
-      redirectURI: '',
       secret: '',
     };
     const result = schema.body.validate(data, { abortEarly: false });
@@ -116,53 +113,10 @@ describe('CreateTokenValidator', () => {
       clientId: 'test-client-id',
       grant: 'saf134Afdsf!33',
       grantType: GrantType.AUTH_CODE,
-      redirectURI: 'https://localhost/auth/success',
       secret: '@1234$$3123##',
     };
     const result = schema.body.validate(data);
     expect(result.error).toBeUndefined();
-  });
-
-  test('it should accept only a valid HTTPS url scheme', () => {
-    const commonValidPayload: Omit<CreateTokenRequest, 'redirectURI'> = {
-      clientId: 'test-client-id',
-      grant: 'saf134Afdsf!33',
-      grantType: GrantType.AUTH_CODE,
-      secret: '@1234$$3123##',
-    };
-
-    const invalidURIInputs: CreateTokenRequest[] = [
-      {
-        ...commonValidPayload,
-        redirectURI: 'http://localhost/auth/success',
-      },
-      {
-        ...commonValidPayload,
-        redirectURI: 'ftp://localhost/auth/success',
-      },
-      {
-        ...commonValidPayload,
-        redirectURI: 'random invalid uri format',
-      },
-    ];
-
-    const validURIInputs = [
-      {
-        ...commonValidPayload,
-        redirectURI: 'https://localhost/auth/success',
-      },
-    ];
-
-    invalidURIInputs.forEach((input) => {
-      const result = schema.body.validate(input);
-      expect(result.error?.details[0]).toBeDefined();
-      expect(result.error?.details[0].path).toContain('redirectURI');
-    });
-
-    validURIInputs.forEach((input) => {
-      const result = schema.body.validate(input);
-      expect(result.error).toBeUndefined();
-    });
   });
 
   test('should not allow any grant types other than auth_code', () => {
@@ -170,7 +124,6 @@ describe('CreateTokenValidator', () => {
       clientId: 'test-client-id',
       grant: 'saf134Afdsf!33',
       grantType: GrantType.AUTH_CODE,
-      redirectURI: 'https://localhost/auth/success',
       secret: '@1234$$3123##',
     };
     const result = schema.body.validate({

@@ -111,7 +111,6 @@ describe('ClientController', () => {
   const correctCredentials: ClientCredentials = {
     clientId: testClient.clientId,
     secret: testClient.secret,
-    redirectURI: testClient.redirectURIs[0],
   };
 
   test('getClientByCredentials() should return client for valid credentials', async () => {
@@ -126,22 +125,14 @@ describe('ClientController', () => {
   });
 
   test('getClientByCredentials() should reject for invalid credentials', async () => {
-    const verifyArray = await Promise.allSettled([
-      ClientController.getClientByCredentials({
+    try {
+      await ClientController.getClientByCredentials({
         ...correctCredentials,
         secret: 'wrong_secret',
-      }),
-      ClientController.getClientByCredentials({
-        ...correctCredentials,
-        redirectURI: 'https://localhost/un-registered-url',
-      }),
-    ]);
-    verifyArray.forEach((result) => {
-      expect(result.status).toBe('rejected');
-      expect((result as PromiseRejectedResult).reason).toBeInstanceOf(
-        InvalidCredentialsError
-      );
-    });
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(InvalidCredentialsError);
+    }
   });
 
   describe('authorize()', () => {
@@ -171,7 +162,6 @@ describe('ClientController', () => {
     const clientCredentials: ClientCredentials = {
       clientId: client.clientId,
       secret: client.secret,
-      redirectURI: client.redirectURIs[0],
     };
 
     beforeAll(async () => {
