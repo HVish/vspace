@@ -15,13 +15,11 @@ import {
 } from './validators';
 
 export interface AuthroizeResponse {
-  accessToken: {
-    value: string;
-    expiresAt: UnixTime;
-  };
-  refreshToken: {
-    value: string;
-    expiresAt: UnixTime;
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    avatar: string | null;
+    name: string;
   };
 }
 
@@ -85,7 +83,7 @@ export const ClientController = Object.freeze({
       throw new InvalidCredentialsError();
     }
 
-    const { userId } = user;
+    const { userId, name, avatar } = user;
 
     const [accessToken, refreshToken] = await Promise.all([
       UserModel.createAccessToken(userId, {
@@ -99,6 +97,10 @@ export const ClientController = Object.freeze({
       UserModel.deleteAuthCode(grant, userId),
     ]);
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken: accessToken.value,
+      refreshToken: refreshToken.value,
+      user: { avatar: avatar || null, name },
+    };
   },
 });

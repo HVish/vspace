@@ -175,19 +175,17 @@ describe('ClientController', () => {
         grant,
         grantType: GrantType.AUTH_CODE,
       });
-      const user = await UserModel.collection.findOne({
+      const _user = await UserModel.collection.findOne({
         'authCodes.value': grant,
       });
-      expect(user).toBeFalsy();
+      expect(_user).toBeFalsy();
       expect(result).toEqual(
         expect.objectContaining({
-          accessToken: expect.objectContaining({
-            expiresAt: expect.any(Number),
-            value: expect.any(String),
-          }),
-          refreshToken: expect.objectContaining({
-            expiresAt: expect.any(Number),
-            value: expect.any(String),
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          user: expect.objectContaining({
+            avatar: user.avatar || null,
+            name: user.name,
           }),
         })
       );

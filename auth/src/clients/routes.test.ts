@@ -115,13 +115,11 @@ describe('POST /clients/v1/authorize', () => {
     });
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.body).toMatchObject({
-      accessToken: expect.objectContaining({
-        expiresAt: expect.any(Number),
-        value: expect.any(String),
-      }),
-      refreshToken: expect.objectContaining({
-        expiresAt: expect.any(Number),
-        value: expect.any(String),
+      accessToken: expect.any(String),
+      refreshToken: expect.any(String),
+      user: expect.objectContaining({
+        avatar: expect.nullOrAny(String),
+        name: expect.any(String),
       }),
     });
   });
