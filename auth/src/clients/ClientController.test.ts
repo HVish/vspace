@@ -184,6 +184,7 @@ describe('ClientController', () => {
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
           user: expect.objectContaining({
+            id: expect.any(String),
             avatar: user.avatar || null,
             name: user.name,
           }),

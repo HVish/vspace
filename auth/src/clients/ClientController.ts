@@ -18,6 +18,7 @@ export interface AuthroizeResponse {
   accessToken: string;
   refreshToken: string;
   user: {
+    id: string;
     avatar: string | null;
     name: string;
   };
@@ -100,7 +101,11 @@ export const ClientController = Object.freeze({
     return {
       accessToken: accessToken.value,
       refreshToken: refreshToken.value,
-      user: { avatar: avatar || null, name },
+      user: {
+        id: userId,
+        avatar: avatar || null,
+        name,
+      },
     };
   },
 });

@@ -118,6 +118,7 @@ describe('POST /clients/v1/authorize', () => {
       accessToken: expect.any(String),
       refreshToken: expect.any(String),
       user: expect.objectContaining({
+        id: expect.any(String),
         avatar: expect.nullOrAny(String),
         name: expect.any(String),
       }),
