@@ -1,6 +1,7 @@
 import { InvalidCredentialsError } from '../shared/errors';
+import { DateTime, DateTimeUnit } from '../utils/datetime';
 import { UsernameExistsError } from './errors';
-import { UserController } from './UserController';
+import { AuthResponse, UserController } from './UserController';
 import { BaseUserWithoutId, UserModel } from './UserModel';
 
 describe('UserController', () => {
@@ -11,9 +12,34 @@ describe('UserController', () => {
     username: 'test_username',
   };
 
+  let refreshToken: string;
+  let expiredRefreshToken: string;
+
   beforeAll(async () => {
-    await UserModel.create(testUser);
+    const user = await UserModel.create(testUser);
+
+    let token = await UserModel.createRefreshToken(user.userId, '');
+    refreshToken = token.value;
+
+    // create an expired refresh token
+    token = await UserModel.createRefreshToken(
+      user.userId,
+      '',
+      DateTime.add(new Date(), -10, DateTimeUnit.DAY)
+    );
+
+    expiredRefreshToken = token.value;
   });
+
+  const expectAuthResponse = (response: AuthResponse) => {
+    expect(response).toMatchObject({
+      userId: expect.any(String),
+      accessToken: expect.objectContaining({
+        expiresAt: expect.any(Number),
+        value: expect.any(String),
+      }),
+    });
+  };
 
   test('should throw UsernameExistsError for existing username during signup', async () => {
     try {
@@ -28,13 +54,7 @@ describe('UserController', () => {
       ...testUser,
       username: 'some_username',
     });
-    expect(result).toMatchObject({
-      userId: expect.any(String),
-      accessToken: expect.objectContaining({
-        expiresAt: expect.any(Number),
-        value: expect.any(String),
-      }),
-    });
+    expectAuthResponse(result);
   });
 
   test('should throw InvalidCredentialsError for invalid uesrname in login', async () => {
@@ -64,12 +84,24 @@ describe('UserController', () => {
       username: testUser.username,
       password: testUser.password,
     });
-    expect(result).toMatchObject({
-      userId: expect.any(String),
-      accessToken: expect.objectContaining({
-        expiresAt: expect.any(Number),
-        value: expect.any(String),
-      }),
-    });
+    expectAuthResponse(result);
+  });
+
+  test('should not create access_token when invalid refresh_token is provided', async () => {
+    const promise = UserController.getAccessTokenByRefreshToken('');
+    await expect(promise).rejects.toThrow(InvalidCredentialsError);
+  });
+
+  test('should not create access_token when expired refresh_token is provided', async () => {
+    const promise =
+      UserController.getAccessTokenByRefreshToken(expiredRefreshToken);
+    await expect(promise).rejects.toThrow(InvalidCredentialsError);
+  });
+
+  test('should create access_token using valid refresh_token', async () => {
+    const result = await UserController.getAccessTokenByRefreshToken(
+      refreshToken
+    );
+    expectAuthResponse(result);
   });
 });

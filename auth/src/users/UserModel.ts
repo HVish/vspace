@@ -30,7 +30,7 @@ export type BaseUserWithoutId = Omit<BaseUser, 'userId'>;
 
 export interface User extends BaseModel, BaseUser {
   authCodes: Token[];
-  refeshTokens: Token[];
+  refreshTokens: Token[];
   status: UserStatus;
 }
 
@@ -53,7 +53,7 @@ export const UserModel = Object.freeze({
       authCodes: [],
       createdOn: Date.now(),
       password: await Hash.create(password),
-      refeshTokens: [],
+      refreshTokens: [],
       status: UserStatus.ACTIVE,
     };
     await this.collection.insertOne(user);
@@ -97,17 +97,21 @@ export const UserModel = Object.freeze({
     return { value, expiresAt };
   },
 
-  async createRefreshToken(userId: string, clientId: string) {
+  async createRefreshToken(
+    userId: string,
+    clientId: string,
+    expiresAt?: number
+  ) {
     const now = Date.now();
     const refreshToken: Token = {
       clientId,
-      expiresAt: DateTime.add(now, 30, DateTimeUnit.DAY),
+      expiresAt: expiresAt ?? DateTime.add(now, 30, DateTimeUnit.DAY),
       issuedAt: now,
       value: randomBytes(128).toString('base64url'),
     };
     await this.collection.updateOne(
       { userId },
-      { $push: { refeshTokens: refreshToken } }
+      { $push: { refreshTokens: refreshToken } }
     );
     return {
       value: refreshToken.value,
@@ -118,7 +122,7 @@ export const UserModel = Object.freeze({
   async deleteRefreshToken(token: string, userId: string) {
     await this.collection.updateOne(
       { userId },
-      { $pull: { refeshTokens: { value: token } } }
+      { $pull: { refreshTokens: { value: token } } }
     );
   },
 });

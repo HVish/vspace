@@ -85,7 +85,7 @@ describe('User Model', () => {
     const user = await UserModel.collection.findOne({
       userId: testUser.userId,
     });
-    const refreshTokenDoc = user?.refeshTokens.find(
+    const refreshTokenDoc = user?.refreshTokens.find(
       (rt) => rt.value === refreshToken.value
     );
 
@@ -106,7 +106,7 @@ describe('User Model', () => {
     );
 
     let user = await UserModel.collection.findOne({ userId: testUser.userId });
-    let refreshTokenDoc = user?.refeshTokens.find(
+    let refreshTokenDoc = user?.refreshTokens.find(
       (ac) => ac.value === refreshToken.value
     );
 
@@ -115,7 +115,7 @@ describe('User Model', () => {
     await UserModel.deleteRefreshToken(refreshToken.value, testUser.userId);
 
     user = await UserModel.collection.findOne({ userId: testUser.userId });
-    refreshTokenDoc = user?.refeshTokens.find(
+    refreshTokenDoc = user?.refreshTokens.find(
       (ac) => ac.value === refreshToken.value
     );
 

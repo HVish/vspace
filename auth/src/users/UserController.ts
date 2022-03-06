@@ -42,4 +42,23 @@ export const UserController = Object.freeze({
   async getAuthCode(userId: string, clientId: string) {
     return UserModel.createAuthCode(userId, clientId);
   },
+  async getAccessTokenByRefreshToken(
+    refreshToken: string
+  ): Promise<AuthResponse> {
+    const user = await UserModel.collection.findOne({
+      refreshTokens: {
+        $elemMatch: {
+          value: refreshToken,
+          expiresAt: { $gte: Date.now() },
+        },
+      },
+    });
+
+    if (!user) throw new InvalidCredentialsError();
+
+    const { userId } = user;
+    const accessToken = await UserModel.createAccessToken(userId);
+
+    return { userId, accessToken };
+  },
 });
