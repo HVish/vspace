@@ -5,9 +5,14 @@ export type CreateClientRequest = Omit<BaseClient, 'adminId' | 'clientId'>;
 
 export const CreateClientValidator = (joi: joi.Root) => ({
   body: joi.object<CreateClientRequest, true>({
-    logo: joi.string().uri({ scheme: 'https' }).required(),
+    logo: joi
+      .string()
+      .uri({ scheme: ['http', 'https'] })
+      .required(),
     name: joi.string().min(4).required(),
-    redirectURIs: joi.array().items(joi.string().uri({ scheme: 'https' })),
+    redirectURIs: joi
+      .array()
+      .items(joi.string().uri({ scheme: ['http', 'https'] })),
     secret: joi.string().min(8).required(),
   }),
 });
@@ -20,7 +25,10 @@ export interface LaunchRequest {
 export const LaunchValidator = (joi: joi.Root) => ({
   body: joi.object<LaunchRequest, true>({
     clientId: joi.string().required(),
-    redirectURI: joi.string().uri({ scheme: 'https' }).required(),
+    redirectURI: joi
+      .string()
+      .uri({ scheme: ['http', 'https'] })
+      .required(),
   }),
 });
 

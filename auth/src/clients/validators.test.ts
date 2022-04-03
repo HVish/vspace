@@ -50,7 +50,7 @@ describe('LaunchValidator', () => {
     expect(result.error).toBeUndefined();
   });
 
-  test('it should accept only a valid HTTPS url scheme', () => {
+  test('it should accept only a valid http or https url scheme', () => {
     const commonValidPayload: Omit<LaunchRequest, 'redirectURI'> = {
       clientId: 'test-client-id',
     };
@@ -58,7 +58,7 @@ describe('LaunchValidator', () => {
     const invalidURIInputs: LaunchRequest[] = [
       {
         ...commonValidPayload,
-        redirectURI: 'http://localhost/auth/success',
+        redirectURI: 'file://localhost/auth/success',
       },
       {
         ...commonValidPayload,
@@ -71,6 +71,10 @@ describe('LaunchValidator', () => {
     ];
 
     const validURIInputs = [
+      {
+        ...commonValidPayload,
+        redirectURI: 'http://localhost/auth/success',
+      },
       {
         ...commonValidPayload,
         redirectURI: 'https://localhost/auth/success',
